@@ -32,7 +32,7 @@ public class Member extends BaseTimeEntity {
     private Role role;
 
     //연관관계 주인
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="channel_id")
     private Channel channel;
 

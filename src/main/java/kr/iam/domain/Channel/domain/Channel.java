@@ -34,7 +34,7 @@ public class Channel extends BaseTimeEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToOne(mappedBy = "channel")
+    @OneToOne(mappedBy = "channel", fetch = FetchType.LAZY)
     private Member member;
 
     @OneToMany(mappedBy = "channel")
@@ -45,8 +45,5 @@ public class Channel extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "channel")
     private List<ChannelAdvertisement> channelAdvertisements = new ArrayList<>();
-
-
-
 
 }

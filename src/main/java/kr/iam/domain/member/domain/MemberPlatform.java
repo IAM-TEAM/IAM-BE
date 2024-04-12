@@ -8,11 +8,11 @@ public class MemberPlatform {
     @Column(name = "member_platform_id")
     private long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="platform_id")
     private Platform platform;
 }

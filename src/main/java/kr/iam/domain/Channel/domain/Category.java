@@ -21,7 +21,7 @@ public class Category {
     private Long id;
     private String name;
 
-    @OneToOne(mappedBy = "category")
+    @OneToOne(mappedBy = "category", fetch = FetchType.LAZY)
     private Channel channel;
 
     @OneToMany(mappedBy = "category")
