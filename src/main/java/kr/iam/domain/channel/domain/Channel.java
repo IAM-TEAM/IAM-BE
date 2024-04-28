@@ -1,16 +1,13 @@
-package kr.iam.domain.Channel.domain;
+package kr.iam.domain.channel.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.Advertisement.domain.Advertisement;
-import kr.iam.domain.Advertisement.domain.ChannelAdvertisement;
+import kr.iam.domain.category.domain.Category;
+import kr.iam.domain.channel_advertisement.domain.ChannelAdvertisement;
 import kr.iam.domain.BaseTimeEntity;
-import kr.iam.domain.Episode.domain.Episode;
-import kr.iam.domain.Notification.domain.Notification;
+import kr.iam.domain.episode.domain.Episode;
+import kr.iam.domain.notification.domain.Notification;
 import kr.iam.domain.member.domain.Member;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +15,8 @@ import java.util.List;
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Channel extends BaseTimeEntity {
 
     @Id @GeneratedValue

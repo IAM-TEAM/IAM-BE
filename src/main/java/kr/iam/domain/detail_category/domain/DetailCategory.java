@@ -1,17 +1,16 @@
-package kr.iam.domain.Channel.domain;
+package kr.iam.domain.detail_category.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import kr.iam.domain.BaseTimeEntity;
+import kr.iam.domain.category.domain.Category;
+import lombok.*;
 
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class DetailCategory {
+@AllArgsConstructor
+public class DetailCategory extends BaseTimeEntity {
     @Id @GeneratedValue
     @Column(name = "detail_category_id")
     private long id;

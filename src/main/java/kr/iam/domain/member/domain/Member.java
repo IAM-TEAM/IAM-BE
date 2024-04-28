@@ -2,21 +2,18 @@ package kr.iam.domain.member.domain;
 
 import jakarta.persistence.*;
 import kr.iam.domain.BaseTimeEntity;
-import kr.iam.domain.Channel.domain.Channel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import kr.iam.domain.channel.domain.Channel;
+import kr.iam.domain.using_platform.domain.UsingPlatform;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
-@Table(name = "member")
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Member extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +34,6 @@ public class Member extends BaseTimeEntity {
     private Channel channel;
 
     @OneToMany(mappedBy = "member")
-    private List<MemberPlatform> memberPlatforms = new ArrayList<>();
+    private List<UsingPlatform> usingPlatforms = new ArrayList<>();
 
 }

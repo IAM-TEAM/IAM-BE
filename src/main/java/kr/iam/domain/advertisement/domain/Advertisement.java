@@ -1,11 +1,9 @@
-package kr.iam.domain.Advertisement.domain;
+package kr.iam.domain.advertisement.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.Channel.domain.Channel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import kr.iam.domain.BaseTimeEntity;
+import kr.iam.domain.channel_advertisement.domain.ChannelAdvertisement;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +13,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Advertisement {
+public class Advertisement extends BaseTimeEntity {
+
     @Id @GeneratedValue
     @Column(name = "advertisement_id")
     private long id;

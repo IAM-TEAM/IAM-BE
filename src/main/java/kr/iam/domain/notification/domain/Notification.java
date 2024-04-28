@@ -1,9 +1,14 @@
-package kr.iam.domain.Notification.domain;
+package kr.iam.domain.notification.domain;
 
 import jakarta.persistence.*;
 import kr.iam.domain.BaseTimeEntity;
-import kr.iam.domain.Channel.domain.Channel;
+import kr.iam.domain.channel.domain.Channel;
+import lombok.*;
 
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 public class Notification extends BaseTimeEntity {
 

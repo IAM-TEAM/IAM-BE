@@ -1,17 +1,15 @@
-package kr.iam.domain.Advertisement.domain;
+package kr.iam.domain.channel_advertisement.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.Channel.domain.Channel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import kr.iam.domain.advertisement.domain.Advertisement;
+import kr.iam.domain.channel.domain.Channel;
+import lombok.*;
 
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class ChannelAdvertisement {
     @Id @GeneratedValue
     @Column(name = "channel_advertisement_id")

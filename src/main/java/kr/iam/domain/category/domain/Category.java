@@ -1,10 +1,10 @@
-package kr.iam.domain.Channel.domain;
+package kr.iam.domain.category.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import kr.iam.domain.BaseTimeEntity;
+import kr.iam.domain.channel.domain.Channel;
+import kr.iam.domain.detail_category.domain.DetailCategory;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.List;
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class Category {
+@AllArgsConstructor
+public class Category extends BaseTimeEntity {
 
     @Id @GeneratedValue
     @Column(name = "category_id")

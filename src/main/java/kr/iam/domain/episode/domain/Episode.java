@@ -1,17 +1,18 @@
-package kr.iam.domain.Episode.domain;
+package kr.iam.domain.episode.domain;
 
 import jakarta.persistence.*;
 import kr.iam.domain.BaseTimeEntity;
-import kr.iam.domain.Channel.domain.Channel;
+import kr.iam.domain.channel.domain.Channel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class Episode extends BaseTimeEntity {
     @Id @GeneratedValue
     @Column(name = "episode_id")
