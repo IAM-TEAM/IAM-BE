@@ -1,8 +1,8 @@
 package kr.iam.domain.channel.domain;
 
 import jakarta.persistence.*;
+import kr.iam.domain.advertisement.domain.Advertisement;
 import kr.iam.domain.category.domain.Category;
-import kr.iam.domain.channel_advertisement.domain.ChannelAdvertisement;
 import kr.iam.domain.BaseTimeEntity;
 import kr.iam.domain.episode.domain.Episode;
 import kr.iam.domain.notification.domain.Notification;
@@ -41,6 +41,6 @@ public class Channel extends BaseTimeEntity {
     private List<Notification> notifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "channel")
-    private List<ChannelAdvertisement> channelAdvertisements = new ArrayList<>();
+    private List<Advertisement> advertisementList = new ArrayList<>();
 
 }
