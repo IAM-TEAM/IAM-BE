@@ -2,7 +2,8 @@ package kr.iam.domain.advertisement.domain;
 
 import jakarta.persistence.*;
 import kr.iam.domain.BaseTimeEntity;
-import kr.iam.domain.channel_advertisement.domain.ChannelAdvertisement;
+import kr.iam.domain.channel.domain.Channel;
+import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -21,7 +22,11 @@ public class Advertisement extends BaseTimeEntity {
     private String url;
     private Double price;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "channel_id")
+    private Channel channel;
+
     @OneToMany(mappedBy = "advertisement")
-    private List<ChannelAdvertisement> channelAdvertisements = new ArrayList<>();
+    private List<EpisodeAdvertisement> episodeAdvertisementList = new ArrayList<>();
 
 }

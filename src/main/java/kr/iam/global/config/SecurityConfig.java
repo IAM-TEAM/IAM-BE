@@ -80,6 +80,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/join").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/rssfeed").permitAll()
+                        .requestMatchers("/rss").permitAll()
                         .anyRequest().authenticated());
 
         //세션 설정 - stateless 상태 !!!
