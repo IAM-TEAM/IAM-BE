@@ -1,4 +1,4 @@
-package kr.iam.domain.episode.application;
+package kr.iam.global.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -34,11 +34,11 @@ public class S3UploadService {
     }
 
     public String saveFile(MultipartFile multipartFile, LocalDateTime uploadTime, Long memberId, String type) throws IOException {
-        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = extractExtension(multipartFile);
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(multipartFile.getSize());
         metadata.setContentType(multipartFile.getContentType());
-        String key = "Member" + memberId + "_" + type + "_" + uploadTime;
+        String key = "Member" + memberId + "_" + type + "_" + uploadTime + extension;
         amazonS3.putObject(bucket, key, multipartFile.getInputStream(), metadata);
         log.info("{}타입 {} 업로드 완료", multipartFile.getContentType(), key);
         return amazonS3.getUrl(bucket, key).toString();
@@ -48,5 +48,16 @@ public class S3UploadService {
         key = key.substring(key.lastIndexOf("/") + 1);
         key = URLDecoder.decode(key, StandardCharsets.UTF_8);
         amazonS3.deleteObject(bucket, key);
+    }
+
+    private String extractExtension(MultipartFile multipartFile) {
+        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = "";
+
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+
+        return extension;
     }
 }

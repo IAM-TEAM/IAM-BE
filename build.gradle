@@ -41,6 +41,10 @@ dependencies {
 	implementation 'com.rometools:rome:1.15.0'
 	implementation 'com.rometools:rome-modules:1.15.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	// JAXB API
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+	// JAXB Runtime
+	implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
 }
 
 tasks.named('test') {

@@ -9,7 +9,7 @@ import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.SyndFeedOutput;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.episode.application.EpisodeService;
-import kr.iam.domain.episode.application.S3UploadService;
+import kr.iam.global.util.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;

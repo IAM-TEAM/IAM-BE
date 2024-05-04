@@ -1,6 +1,9 @@
 package kr.iam.domain.member.application;
 
 import kr.iam.domain.member.dao.MemberRepository;
+import kr.iam.domain.member.domain.Member;
+import kr.iam.global.exception.BusinessLogicException;
+import kr.iam.global.exception.code.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,5 +19,10 @@ public class MemberService {
 
     public Boolean existsMemberById(Long memberId) {
         return memberRepository.existsById(memberId);
+    }
+
+    public Member findById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 }
