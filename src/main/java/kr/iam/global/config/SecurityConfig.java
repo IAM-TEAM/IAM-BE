@@ -3,9 +3,11 @@ package kr.iam.global.config;
 import kr.iam.global.jwt.JWTFilter;
 import kr.iam.global.jwt.JWTUtil;
 import kr.iam.global.jwt.LoginFilter;
+import kr.iam.global.oauth.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,49 +23,17 @@ import java.util.Collections;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
-    private final AuthenticationConfiguration authenticationConfiguration;
-    private final JWTUtil jwtUtil;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-    }
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
 
-    //AuthenticationManager Bean 등록
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
-        return configuration.getAuthenticationManager();
-    }
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        //비밀번호 암호화
-        return new BCryptPasswordEncoder();
+        this.customOAuth2UserService = customOAuth2UserService;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        //프론트와 통신을 위한 cors 설정
-        http
-                .cors((corsCustomizer -> corsCustomizer.configurationSource(request -> {
-
-                    CorsConfiguration configuration = new CorsConfiguration();
-
-                    configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                    configuration.setAllowedMethods(Collections.singletonList("*"));
-                    configuration.setAllowCredentials(true);
-                    configuration.setAllowedHeaders(Collections.singletonList("*"));
-                    configuration.setMaxAge(3600L);
-
-                    configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                    return configuration;
-                })));
-
         //csrf disable
-        //jwt의 경우 세션을 stateless하게 관리 -> csrf 공격에 대한 방어 필요 x
         http
                 .csrf((auth) -> auth.disable());
 
@@ -71,29 +41,28 @@ public class SecurityConfig {
         http
                 .formLogin((auth) -> auth.disable());
 
-        //http basic 인증 방식 disable
+        //HTTP Basic 인증 방식 disable
         http
                 .httpBasic((auth) -> auth.disable());
+
+        //oauth2
+        http
+                .oauth2Login((oauth2) -> oauth2
+                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService)));
+
 
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/rssfeed").permitAll()
-                        .requestMatchers("/rss").permitAll()
+                        .requestMatchers("/").permitAll()
                         .anyRequest().authenticated());
 
-        //세션 설정 - stateless 상태 !!!
+        //세션 설정 : STATELESS
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-
         return http.build();
     }
-
 }

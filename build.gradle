@@ -36,11 +36,17 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 	//RSS 피드 파싱
 	implementation 'org.jsoup:jsoup:1.15.3'
 	implementation 'com.rometools:rome:1.15.0'
 	implementation 'com.rometools:rome-modules:1.15.0'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	// JAXB API
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
+	// JAXB Runtime
+	implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
 }
 
 tasks.named('test') {
