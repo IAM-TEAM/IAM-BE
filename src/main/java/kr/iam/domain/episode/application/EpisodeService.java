@@ -52,7 +52,8 @@ public class EpisodeService {
             String contentUrl = s3UploadService.saveFile(content, uploadTime, memberId, "audio");
 
             //RSS 피드 수정
-            SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(), null, uploadTime,
+            SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
+                    "https://test.test.iam/member0/episodeId.e1e2e23r", uploadTime,
                     contentUrl, imageUrl, "audio/mpeg", member.getUsername());
             rssUtil.addEpisode("https://anchor.fm/s/f5858a40/podcast/rss", newEpisode);
 
@@ -74,6 +75,13 @@ public class EpisodeService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
         s3UploadService.deleteFile(episode.getImage());
         s3UploadService.deleteFile(episode.getContent());
+        try {
+            rssUtil.deleteEpisode("test", "test");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (FeedException e) {
+            throw new RuntimeException(e);
+        }
         episodeRepository.delete(episode);
     }
 }

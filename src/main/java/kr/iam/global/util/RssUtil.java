@@ -8,6 +8,7 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.SyndFeedOutput;
 import com.rometools.rome.io.XmlReader;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.springframework.stereotype.Component;
@@ -20,11 +21,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+@Slf4j
 @Component
 public class RssUtil {
 
@@ -42,6 +41,35 @@ public class RssUtil {
         feed.getEntries().add(0, newEpisode);  // Add at the beginning of the list
 
         // 파일에 새로운 피드를 덮어쓰기로 출력
+        FileWriter writer = new FileWriter(file);  // 기존 파일 경로를 사용하여 파일을 덮어쓰기
+        SyndFeedOutput output = new SyndFeedOutput();
+        output.output(feed, writer);
+        writer.close();  // 리소스 정리
+        reader.close();  // XML Reader 닫기
+    }
+
+    public void deleteEpisode(String feedUrl, String episodeLink) throws IOException, FeedException {
+        // 기존 피드 파일을 읽기
+        String filePath = "updated_feed.xml";
+        episodeLink = "https://podcasters.spotify.com/pod/show/qnr6ued8ig8/episodes/test-e2j84o5";
+        File file = new File(filePath);
+        FileInputStream inputStream = new FileInputStream(file);
+        XmlReader reader = new XmlReader(inputStream);
+        SyndFeed feed = new SyndFeedInput().build(reader);
+
+        // 삭제할 항목 찾기
+        Iterator<SyndEntry> iterator = feed.getEntries().iterator();
+        while (iterator.hasNext()) {
+            SyndEntry entry = iterator.next();
+            String entryLink = entry.getLink();
+            log.info("link={}", episodeLink);
+            if (entryLink != null && entryLink.equals(episodeLink)) {
+                iterator.remove();
+                break;
+            }
+        }
+
+        // 파일에 변경된 피드를 덮어쓰기로 출력
         FileWriter writer = new FileWriter(file);  // 기존 파일 경로를 사용하여 파일을 덮어쓰기
         SyndFeedOutput output = new SyndFeedOutput();
         output.output(feed, writer);
