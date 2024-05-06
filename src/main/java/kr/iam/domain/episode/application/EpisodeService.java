@@ -7,13 +7,14 @@ import kr.iam.domain.channel.application.ChannelService;
 import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.episode.dao.EpisodeRepository;
 import kr.iam.domain.episode.domain.Episode;
+import kr.iam.domain.episode_advertisement.application.EpisodeAdvertisementService;
 import kr.iam.domain.member.application.MemberService;
 import kr.iam.domain.member.domain.Member;
 import kr.iam.global.exception.BusinessLogicException;
 import kr.iam.global.exception.code.ExceptionCode;
 import kr.iam.global.util.CookieUtil;
 import kr.iam.global.util.RssUtil;
-import kr.iam.global.util.S3UploadService;
+import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,21 +23,28 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static kr.iam.domain.episode.dto.EpisodeDto.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EpisodeService {
 
     private final EpisodeRepository episodeRepository;
     private final ChannelService channelService;
     private final MemberService memberService;
-    private final S3UploadService s3UploadService;
+    private final EpisodeAdvertisementService advertisementService;
+    private final S3UploadUtil s3UploadUtil;
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
+    private final EpisodeAdvertisementService episodeAdvertisementService;
 
+    @Transactional
     public Long saveEpisode(MultipartFile image, MultipartFile content, EpisodeSaveRequestDto requestDto,
                               HttpServletRequest request) {
         try {
@@ -48,8 +56,8 @@ public class EpisodeService {
             if (uploadTime == null) {
                 uploadTime = LocalDateTime.now();
             }
-            String imageUrl = s3UploadService.saveFile(image, uploadTime, memberId, "image");
-            String contentUrl = s3UploadService.saveFile(content, uploadTime, memberId, "audio");
+            String imageUrl = s3UploadUtil.saveFile(image, uploadTime, memberId, "image");
+            String contentUrl = s3UploadUtil.saveFile(content, uploadTime, memberId, "audio");
 
             //RSS 피드 수정
             SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
@@ -60,6 +68,10 @@ public class EpisodeService {
             //DB 업로드
             Episode episode = Episode.of(requestDto, channel, imageUrl, contentUrl, uploadTime);
             episodeRepository.save(episode);
+            String advertiseIds = requestDto.getAdvertiseId();
+            String startTimes = requestDto.getAdvertiseStart();
+            if(advertiseIds != null)
+                episodeAdvertisementService.saveEpisodeAdvertisement(episode, toList(advertiseIds), toList(startTimes));
             return episode.getId();
         } catch (IOException e) {
             e.printStackTrace();
@@ -69,12 +81,18 @@ public class EpisodeService {
         }
     }
 
+    public EpisodeInfoResponseDto getEpisode(Long episodeId) {
+        Episode episode = episodeRepository.findByIdAndEpisodeAdvertisement(episodeId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
+        return EpisodeInfoResponseDto.of(episode);
+    }
+
     @Transactional
     public void delete(Long episodeId) {
         Episode episode = episodeRepository.findById(episodeId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
-        s3UploadService.deleteFile(episode.getImage());
-        s3UploadService.deleteFile(episode.getContent());
+        s3UploadUtil.deleteFile(episode.getImage());
+        s3UploadUtil.deleteFile(episode.getContent());
         try {
             rssUtil.deleteEpisode("test", "test");
         } catch (IOException e) {
@@ -83,5 +101,11 @@ public class EpisodeService {
             throw new RuntimeException(e);
         }
         episodeRepository.delete(episode);
+    }
+
+    private List<String> toList(String value) {
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 }

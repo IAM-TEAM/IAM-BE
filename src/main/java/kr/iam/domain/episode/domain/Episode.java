@@ -38,7 +38,7 @@ public class Episode extends BaseTimeEntity {
     @JoinColumn(name = "channel_id")
     private Channel channel;
 
-    @OneToMany(mappedBy = "episode")
+    @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EpisodeAdvertisement> episodeAdvertisementList = new ArrayList<>();
 
     @Builder
