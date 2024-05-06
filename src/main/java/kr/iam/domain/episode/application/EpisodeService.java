@@ -17,12 +17,16 @@ import kr.iam.global.util.RssUtil;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -85,6 +89,16 @@ public class EpisodeService {
         Episode episode = episodeRepository.findByIdAndEpisodeAdvertisement(episodeId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
         return EpisodeInfoResponseDto.of(episode);
+    }
+
+    public Page<EpisodeListInfoDto> getEpisodeList(int upload, Pageable pageable, HttpServletRequest request) {
+        Long channelId = Long.valueOf(cookieUtil.getCookieValue("channelId", request));
+        Channel channel = channelService.findByChannelId(channelId);
+        Page<Episode> byUploadAndChannel = episodeRepository.findByUploadAndChannel(upload, channel, pageable);
+        List<EpisodeListInfoDto> dtos = byUploadAndChannel.getContent().stream()
+                .map(EpisodeListInfoDto::of)
+                .toList();
+        return new PageImpl<>(dtos, pageable, byUploadAndChannel.getTotalElements());
     }
 
     @Transactional

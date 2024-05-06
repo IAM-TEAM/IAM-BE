@@ -31,7 +31,7 @@ public class Episode extends BaseTimeEntity {
     private String content;
     private boolean limitAge; // 연령제한
     private LocalDateTime reservation;
-    private Boolean upload;
+    private Integer upload;
 
     //연관관계 주인
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,7 +43,7 @@ public class Episode extends BaseTimeEntity {
 
     @Builder
     public Episode(long id, String title, String description, String image, String content,
-                   boolean limitAge, LocalDateTime reservation, Channel channel, Boolean upload) {
+                   boolean limitAge, LocalDateTime reservation, Channel channel, Integer upload) {
         this.id = id;
         this.title = title;
         this.description = description;
