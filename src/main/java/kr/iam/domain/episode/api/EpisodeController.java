@@ -9,7 +9,7 @@ import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.SyndFeedOutput;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.episode.application.EpisodeService;
-import kr.iam.global.util.S3UploadService;
+import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -29,7 +29,7 @@ import static kr.iam.domain.episode.dto.EpisodeDto.*;
 @RequiredArgsConstructor
 public class EpisodeController {
 
-    private final S3UploadService s3UploadService;
+    private final S3UploadUtil s3UploadUtil;
     private final ObjectMapper objectMapper;
     private final EpisodeService episodeService;
 
@@ -113,7 +113,7 @@ public class EpisodeController {
 
         // RSS 피드 출력
         String result = new SyndFeedOutput().outputString(feed);
-        s3UploadService.uploadRssFeed("test.xml", result);
+        s3UploadUtil.uploadRssFeed("test.xml", result);
         return ResponseEntity.ok().body(result);
     }
 }

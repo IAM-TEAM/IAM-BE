@@ -14,7 +14,7 @@ import kr.iam.global.exception.BusinessLogicException;
 import kr.iam.global.exception.code.ExceptionCode;
 import kr.iam.global.util.CookieUtil;
 import kr.iam.global.util.RssUtil;
-import kr.iam.global.util.S3UploadService;
+import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class EpisodeService {
     private final ChannelService channelService;
     private final MemberService memberService;
     private final EpisodeAdvertisementService advertisementService;
-    private final S3UploadService s3UploadService;
+    private final S3UploadUtil s3UploadUtil;
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
     private final EpisodeAdvertisementService episodeAdvertisementService;
@@ -56,8 +56,8 @@ public class EpisodeService {
             if (uploadTime == null) {
                 uploadTime = LocalDateTime.now();
             }
-            String imageUrl = s3UploadService.saveFile(image, uploadTime, memberId, "image");
-            String contentUrl = s3UploadService.saveFile(content, uploadTime, memberId, "audio");
+            String imageUrl = s3UploadUtil.saveFile(image, uploadTime, memberId, "image");
+            String contentUrl = s3UploadUtil.saveFile(content, uploadTime, memberId, "audio");
 
             //RSS 피드 수정
             SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
@@ -91,8 +91,8 @@ public class EpisodeService {
     public void delete(Long episodeId) {
         Episode episode = episodeRepository.findById(episodeId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
-        s3UploadService.deleteFile(episode.getImage());
-        s3UploadService.deleteFile(episode.getContent());
+        s3UploadUtil.deleteFile(episode.getImage());
+        s3UploadUtil.deleteFile(episode.getContent());
         try {
             rssUtil.deleteEpisode("test", "test");
         } catch (IOException e) {
