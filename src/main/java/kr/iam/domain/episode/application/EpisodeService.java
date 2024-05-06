@@ -7,6 +7,7 @@ import kr.iam.domain.channel.application.ChannelService;
 import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.episode.dao.EpisodeRepository;
 import kr.iam.domain.episode.domain.Episode;
+import kr.iam.domain.episode_advertisement.application.EpisodeAdvertisementService;
 import kr.iam.domain.member.application.MemberService;
 import kr.iam.domain.member.domain.Member;
 import kr.iam.global.exception.BusinessLogicException;
@@ -22,21 +23,28 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static kr.iam.domain.episode.dto.EpisodeDto.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EpisodeService {
 
     private final EpisodeRepository episodeRepository;
     private final ChannelService channelService;
     private final MemberService memberService;
+    private final EpisodeAdvertisementService advertisementService;
     private final S3UploadService s3UploadService;
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
+    private final EpisodeAdvertisementService episodeAdvertisementService;
 
+    @Transactional
     public Long saveEpisode(MultipartFile image, MultipartFile content, EpisodeSaveRequestDto requestDto,
                               HttpServletRequest request) {
         try {
@@ -60,6 +68,9 @@ public class EpisodeService {
             //DB 업로드
             Episode episode = Episode.of(requestDto, channel, imageUrl, contentUrl, uploadTime);
             episodeRepository.save(episode);
+            String advertiseIds = requestDto.getAdvertiseId();
+            String startTimes = requestDto.getAdvertiseStart();
+            episodeAdvertisementService.saveEpisodeAdvertisement(episode, toList(advertiseIds), toList(startTimes));
             return episode.getId();
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,5 +94,11 @@ public class EpisodeService {
             throw new RuntimeException(e);
         }
         episodeRepository.delete(episode);
+    }
+
+    private List<String> toList(String value) {
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 }
