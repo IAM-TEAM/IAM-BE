@@ -70,7 +70,8 @@ public class EpisodeService {
             episodeRepository.save(episode);
             String advertiseIds = requestDto.getAdvertiseId();
             String startTimes = requestDto.getAdvertiseStart();
-            episodeAdvertisementService.saveEpisodeAdvertisement(episode, toList(advertiseIds), toList(startTimes));
+            if(advertiseIds != null)
+                episodeAdvertisementService.saveEpisodeAdvertisement(episode, toList(advertiseIds), toList(startTimes));
             return episode.getId();
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,6 +79,12 @@ public class EpisodeService {
         } catch (FeedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public EpisodeInfoResponseDto getEpisode(Long episodeId) {
+        Episode episode = episodeRepository.findByIdAndEpisodeAdvertisement(episodeId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
+        return EpisodeInfoResponseDto.of(episode);
     }
 
     @Transactional

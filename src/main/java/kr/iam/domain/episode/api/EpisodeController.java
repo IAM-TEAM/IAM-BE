@@ -52,6 +52,16 @@ public class EpisodeController {
     }
 
     /**
+     * 에피소드 조회
+     * @param episodeId
+     * @return
+     */
+    @GetMapping("/{episodeId}")
+    public ResponseEntity<EpisodeInfoResponseDto> getEpisodeInfo(@PathVariable("episodeId") Long episodeId) {
+        return ResponseEntity.ok(episodeService.getEpisode(episodeId));
+    }
+
+    /**
      * 에피소드 삭제
      * @param episodeId
      * @return

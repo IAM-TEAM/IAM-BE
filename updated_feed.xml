@@ -37,9 +37,54 @@
       <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">test</dc:creator>
       <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
       <description>응애</description>
+      <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member1_audio_2024-05-06T15%3A19%3A27.451186600.mp4" length="7837715" type="audio/mpeg" />
+      <pubDate>Mon, 06 May 2024 06:19:27 GMT</pubDate>
+      <guid>https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <dc:date>2024-05-06T06:19:27Z</dc:date>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member1_image_2024-05-06T15%3A19%3A27.451186600.png" />
+      <itunes:keywords />
+      <itunes:summary>description</itunes:summary>
+    </item>
+    <item>
+      <title>졸리당</title>
+      <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">test</dc:creator>
+      <description>응애</description>
+      <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member1_audio_2024-05-06T15%3A19%3A11.032420300.mp4" length="7837715" type="audio/mpeg" />
+      <pubDate>Mon, 06 May 2024 06:19:11 GMT</pubDate>
+      <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <dc:date>2024-05-06T06:19:11Z</dc:date>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member1_image_2024-05-06T15%3A19%3A11.032420300.png" />
+      <itunes:keywords />
+      <itunes:summary>description</itunes:summary>
+    </item>
+    <item>
+      <title>졸리당</title>
+      <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">test</dc:creator>
+      <description>응애</description>
+      <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member1_audio_2024-05-06T15%3A16%3A07.701226400.mp4" length="7837715" type="audio/mpeg" />
+      <pubDate>Mon, 06 May 2024 06:16:07 GMT</pubDate>
+      <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <dc:date>2024-05-06T06:16:07Z</dc:date>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member1_image_2024-05-06T15%3A16%3A07.701226400.png" />
+      <itunes:keywords />
+      <itunes:summary>description</itunes:summary>
+    </item>
+    <item>
+      <title>졸리당</title>
+      <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">test</dc:creator>
+      <description>응애</description>
       <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member1_audio_2024-05-06T14%3A28%3A25.883186600.mp4" length="7837715" type="audio/mpeg" />
       <pubDate>Mon, 06 May 2024 05:28:25 GMT</pubDate>
-      <guid>https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
       <dc:date>2024-05-06T05:28:25Z</dc:date>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>no</itunes:explicit>
