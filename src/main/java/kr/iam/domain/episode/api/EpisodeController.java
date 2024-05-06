@@ -33,6 +33,15 @@ public class EpisodeController {
     private final ObjectMapper objectMapper;
     private final EpisodeService episodeService;
 
+    /**
+     * 에피소드 생성
+     * @param image
+     * @param content
+     * @param episodeData
+     * @param request
+     * @return
+     * @throws JsonProcessingException
+     */
     @PostMapping
     public ResponseEntity<String> uploadEpisode(@RequestPart(value = "image") MultipartFile image,
                                                 @RequestPart(value = "audio") MultipartFile content,
@@ -42,6 +51,11 @@ public class EpisodeController {
         return ResponseEntity.ok(episodeService.saveEpisode(image, content, requestDto, request) + " created");
     }
 
+    /**
+     * 에피소드 삭제
+     * @param episodeId
+     * @return
+     */
     @DeleteMapping("/{episodeId}")
     public ResponseEntity<String> deleteEpisode(@PathVariable("episodeId") Long episodeId) {
         episodeService.delete(episodeId);
