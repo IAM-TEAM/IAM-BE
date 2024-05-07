@@ -50,9 +50,16 @@ public class EpisodeService {
     private final S3UploadUtil s3UploadUtil;
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
-    private final EpisodeAdvertisementService episodeAdvertisementService;
     private final AdvertisementService advertisementService;
 
+    /**
+     * 에피소드 저장
+     * @param image
+     * @param content
+     * @param requestDto
+     * @param request
+     * @return
+     */
     @Transactional
     public Long saveEpisode(MultipartFile image, MultipartFile content, EpisodeSaveRequestDto requestDto,
                               HttpServletRequest request) {
@@ -83,9 +90,6 @@ public class EpisodeService {
             }
             episodeRepository.save(episode);
 
-//            if (advertiseIds != null)
-//                episodeAdvertisementService.saveEpisodeAdvertisement(episode, toList(advertiseIds), toList(startTimes));
-
             return episode.getId();
         } catch (IOException e) {
             e.printStackTrace();
@@ -95,12 +99,24 @@ public class EpisodeService {
         }
     }
 
+    /**
+     * 에피소드 조회
+     * @param episodeId
+     * @return
+     */
     public EpisodeInfoResponseDto getEpisode(Long episodeId) {
         Episode episode = episodeRepository.findByIdAndEpisodeAdvertisement(episodeId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
         return EpisodeInfoResponseDto.of(episode);
     }
 
+    /**
+     * 에피소드 리스트 조회(페이징)
+     * @param upload
+     * @param pageable
+     * @param request
+     * @return
+     */
     public Page<EpisodeListInfoDto> getEpisodeList(int upload, Pageable pageable, HttpServletRequest request) {
         Long channelId = Long.valueOf(cookieUtil.getCookieValue("channelId", request));
         Channel channel = channelService.findByChannelId(channelId);
@@ -111,6 +127,10 @@ public class EpisodeService {
         return new PageImpl<>(dtos, pageable, byUploadAndChannel.getTotalElements());
     }
 
+    /**
+     * 에피소드 삭제
+     * @param episodeId
+     */
     @Transactional
     public void delete(Long episodeId) {
         Episode episode = episodeRepository.findById(episodeId)
