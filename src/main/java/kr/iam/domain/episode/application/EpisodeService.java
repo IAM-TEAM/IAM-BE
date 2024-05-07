@@ -1,13 +1,17 @@
 package kr.iam.domain.episode.application;
 
+import com.amazonaws.services.cloudformation.model.transform.ListTypesResultStaxUnmarshaller;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.io.FeedException;
 import jakarta.servlet.http.HttpServletRequest;
+import kr.iam.domain.advertisement.application.AdvertisementService;
+import kr.iam.domain.advertisement.domain.Advertisement;
 import kr.iam.domain.channel.application.ChannelService;
 import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.episode.dao.EpisodeRepository;
 import kr.iam.domain.episode.domain.Episode;
 import kr.iam.domain.episode_advertisement.application.EpisodeAdvertisementService;
+import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
 import kr.iam.domain.member.application.MemberService;
 import kr.iam.domain.member.domain.Member;
 import kr.iam.global.exception.BusinessLogicException;
@@ -30,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static kr.iam.domain.episode.dto.EpisodeDto.*;
 
@@ -42,11 +47,11 @@ public class EpisodeService {
     private final EpisodeRepository episodeRepository;
     private final ChannelService channelService;
     private final MemberService memberService;
-    private final EpisodeAdvertisementService advertisementService;
     private final S3UploadUtil s3UploadUtil;
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
     private final EpisodeAdvertisementService episodeAdvertisementService;
+    private final AdvertisementService advertisementService;
 
     @Transactional
     public Long saveEpisode(MultipartFile image, MultipartFile content, EpisodeSaveRequestDto requestDto,
@@ -71,11 +76,16 @@ public class EpisodeService {
 
             //DB 업로드
             Episode episode = Episode.of(requestDto, channel, imageUrl, contentUrl, uploadTime);
+            if (requestDto.getAdvertiseId() != null) {
+                List<EpisodeAdvertisement> episodeAdvertisementList =
+                        toEpisodeAdvertisementList(episode, requestDto.getAdvertiseId(), requestDto.getAdvertiseStart());
+                episode.getEpisodeAdvertisementList().addAll(episodeAdvertisementList);
+            }
             episodeRepository.save(episode);
-            String advertiseIds = requestDto.getAdvertiseId();
-            String startTimes = requestDto.getAdvertiseStart();
-            if(advertiseIds != null)
-                episodeAdvertisementService.saveEpisodeAdvertisement(episode, toList(advertiseIds), toList(startTimes));
+
+//            if (advertiseIds != null)
+//                episodeAdvertisementService.saveEpisodeAdvertisement(episode, toList(advertiseIds), toList(startTimes));
+
             return episode.getId();
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,5 +131,17 @@ public class EpisodeService {
         return Arrays.stream(value.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
+    }
+
+    private List<EpisodeAdvertisement> toEpisodeAdvertisementList(Episode episode, String ads, String times) {
+        List<String> adIds = toList(ads);
+        List<String> startTimeList = toList(times);
+        List<EpisodeAdvertisement> result = IntStream.range(0, adIds.size())
+                .mapToObj(i -> {
+                    Advertisement byAdvertiseId = advertisementService.findByAdvertiseId(Long.valueOf(adIds.get(i)));
+                    return EpisodeAdvertisement.of(episode, byAdvertiseId, startTimeList.get(i));
+                })
+                .collect(Collectors.toList());
+        return result;
     }
 }
