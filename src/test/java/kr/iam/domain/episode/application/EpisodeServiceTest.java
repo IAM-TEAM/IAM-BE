@@ -11,12 +11,17 @@ import kr.iam.domain.member.domain.Member;
 import kr.iam.global.util.CookieUtil;
 import kr.iam.global.util.RssUtil;
 import kr.iam.global.util.S3UploadUtil;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +29,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static kr.iam.domain.episode.dto.EpisodeDto.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -36,25 +46,25 @@ class EpisodeServiceTest {
     @Autowired
     EpisodeService episodeService;
 
-    @Mock
+    @MockBean
     EpisodeRepository episodeRepository;
 
-    @Mock
+    @MockBean
     MemberService memberService;
 
-    @Mock
+    @MockBean
     ChannelService channelService;
 
-    @Mock
+    @MockBean
     EpisodeAdvertisementService episodeAdvertisementService;
 
-    @Mock
+    @MockBean
     CookieUtil cookieUtil;
 
-    @Mock
+    @MockBean
     RssUtil rssUtil;
 
-    @Mock
+    @MockBean
     S3UploadUtil s3UploadUtil;
 
     MockHttpServletRequest request;
@@ -73,13 +83,12 @@ class EpisodeServiceTest {
         Long memberId = 1L;
         Long channelId = 1L;
         EpisodeSaveRequestDto episodeSaveRequestDto = EpisodeSaveRequestDto.builder()
-                .title("test").reservationTime(LocalDateTime.now()).build();
+                .title("test").description("test").age(true).reservationTime(LocalDateTime.now()).build();
         MultipartFile multipartFile = null;
         String testUrl = "https://testUrl.com";
         Member member = Member.builder().id(memberId).build();
         Channel channel = Channel.builder().id(channelId).build();
 
-        //when
         when(cookieUtil.getCookieValue("memberId", request)).thenReturn(String.valueOf(memberId));
         when(cookieUtil.getCookieValue("channelId", request)).thenReturn(String.valueOf(channelId));
         when(memberService.findById(memberId)).thenReturn(member);
@@ -89,23 +98,68 @@ class EpisodeServiceTest {
         when(s3UploadUtil.saveFile(null, episodeSaveRequestDto.getReservationTime(), memberId, "audio"))
                 .thenReturn(testUrl);
 
+        //when
+        Long id = episodeService.saveEpisode(multipartFile, multipartFile, episodeSaveRequestDto, request);
+
         //then
-        Episode episode = Episode.of(episodeSaveRequestDto, channel, testUrl, testUrl, episodeSaveRequestDto.getReservationTime());
-        episodeRepository.save(episode);
-    }
-
-    @Test
-    void 에피소드_리스트_조회() {
-
+        verify(episodeRepository, times(1)).save(any(Episode.class));
+        assertNotNull(id);
     }
 
     @Test
     void 에피소드_조회() {
+        //given
+        Long episodeId = 1L;
+        Episode episode = Episode.builder().id(1L).title("testTitle").build();
+        when(episodeRepository.findByIdAndEpisodeAdvertisement(episodeId))
+                .thenReturn(Optional.ofNullable(episode));
 
+        //when
+        EpisodeInfoResponseDto testEpisode = episodeService.getEpisode(episodeId);
+
+        //then
+        assertThat(testEpisode.getTitle()).isEqualTo("testTitle");
     }
 
     @Test
-    void 에피소드_삭제() {
+    void 에피소드_리스트_조회() {
+        //given
+        int upload = 1;
+        Long channelId = 1L;
+        Channel channel = Channel.builder().id(channelId).build();
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        Episode episode = new Episode();
+        List<Episode> episodes = List.of(episode);
+        Page<Episode> page = new PageImpl<>(episodes, pageRequest, 1);
+        when(cookieUtil.getCookieValue("channelId", request))
+                .thenReturn(String.valueOf(channelId));
+        when(channelService.findByChannelId(channelId))
+                .thenReturn(channel);
+        when(episodeRepository.findByUploadAndChannel(upload, channel, pageRequest)).thenReturn(page);
 
+        //when
+        Page<EpisodeListInfoDto> result = episodeService.getEpisodeList(upload, pageRequest, request);
+
+        //then
+        assertNotNull(result);
+        assertThat(result.getTotalElements()).isEqualTo(1);
+    }
+
+    @Test
+    void 에피소드_삭제() throws IOException {
+        //given
+        Long episodeId = 1L;
+        Long memberId = 1L;
+        Episode episode = new Episode();
+        when(episodeRepository.findById(episodeId))
+                .thenReturn(Optional.of(episode));
+        when(s3UploadUtil.saveFile(null, LocalDateTime.now(), memberId, null))
+                .thenReturn(null);
+
+        //when
+        episodeService.delete(episodeId);
+
+        //then
+        verify(episodeRepository, times(1)).delete(any(Episode.class));
     }
 }
