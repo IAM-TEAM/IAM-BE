@@ -12,6 +12,9 @@ import kr.iam.domain.episode.application.EpisodeService;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +62,21 @@ public class EpisodeController {
     @GetMapping("/{episodeId}")
     public ResponseEntity<EpisodeInfoResponseDto> getEpisodeInfo(@PathVariable("episodeId") Long episodeId) {
         return ResponseEntity.ok(episodeService.getEpisode(episodeId));
+    }
+
+    /**
+     * 에피소드 리스트 조회
+     * -1이면 임시 저장, 1이면 완료, 0이면 예정
+     * @param upload
+     * @param pageable
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/{upload}")
+    public ResponseEntity<Page<EpisodeListInfoDto>> getEpisodeList(@PathVariable("upload") int upload,
+                                                                   @PageableDefault Pageable pageable,
+                                                                   HttpServletRequest request) {
+        return ResponseEntity.ok(episodeService.getEpisodeList(upload, pageable, request));
     }
 
     /**

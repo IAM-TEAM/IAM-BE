@@ -5,6 +5,7 @@ import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
 import kr.iam.domain.episode_advertisement.dto.EpisodeAdvertisementDto;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.time.LocalDateTime;
@@ -27,7 +28,29 @@ public class EpisodeDto {
         private String advertiseId;
         private Boolean age;
         private LocalDateTime reservationTime;
-        private Boolean upload;
+        private Integer upload;
+    }
+
+    @Getter
+    @Builder
+    public static class EpisodeListInfoDto {
+        private Long id;
+        private String image;
+        private String title;
+        private String description;
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+        private LocalDateTime createdDate;
+
+        public static EpisodeListInfoDto of(Episode episode) {
+            return EpisodeListInfoDto
+                    .builder()
+                    .id(episode.getId())
+                    .image(episode.getImage())
+                    .title(episode.getTitle())
+                    .description(episode.getDescription())
+                    .createdDate(episode.getModifiedDate())
+                    .build();
+        }
     }
 
     @Getter
@@ -40,7 +63,7 @@ public class EpisodeDto {
         private String content;
         @Builder.Default
         private List<AdvertiseInfo> advertiseInfoList = new ArrayList<>();
-        private Boolean upload;
+        private Integer upload;
 
         public static EpisodeInfoResponseDto of(Episode episode) {
             List<EpisodeAdvertisement> episodeAdvertisementList = episode.getEpisodeAdvertisementList();
