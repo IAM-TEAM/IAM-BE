@@ -29,10 +29,8 @@ public class JWTFilter extends OncePerRequestFilter {
         String authorization = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-
             System.out.println(cookie.getName());
             if (cookie.getName().equals("Authorization")) {
-
                 authorization = cookie.getValue();
             }
         }
@@ -51,14 +49,14 @@ public class JWTFilter extends OncePerRequestFilter {
         String token = authorization;
 
         //토큰 소멸 시간 검증
-        if (jwtUtil.isExpired(token)) {
-
-            System.out.println("token expired");
-            filterChain.doFilter(request, response);
-
-            //조건이 해당되면 메소드 종료 (필수)
-            return;
-        }
+//        if (jwtUtil.isExpired(token)) {
+//
+//            System.out.println("token expired");
+//            filterChain.doFilter(request, response);
+//
+//            //조건이 해당되면 메소드 종료 (필수)
+//            return;
+//        }
 
         //토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(token);
@@ -79,5 +77,18 @@ public class JWTFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
+
+        String requestUri = request.getRequestURI();
+
+        if (requestUri.matches("^\\/login(?:\\/.*)?$")) {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (requestUri.matches("^\\/oauth2(?:\\/.*)?$")) {
+
+            filterChain.doFilter(request, response);
+            return;
+        }
     }
 }
