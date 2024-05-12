@@ -18,6 +18,7 @@ public class Platform extends BaseTimeEntity {
     @Column(name = "platform_id")
     private long id;
     private String name;
+    private String link;
     @OneToMany(mappedBy = "platform")
     private List<UsingPlatform> usingPlatforms = new ArrayList<>();
 }
