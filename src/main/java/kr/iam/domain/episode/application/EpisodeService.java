@@ -72,8 +72,8 @@ public class EpisodeService {
             if (uploadTime == null) {
                 uploadTime = LocalDateTime.now();
             }
-            String imageUrl = s3UploadUtil.saveFile(image, uploadTime, memberId, "image");
-            String contentUrl = s3UploadUtil.saveFile(content, uploadTime, memberId, "audio");
+            String imageUrl = s3UploadUtil.saveFile(image, uploadTime, memberId);
+            String contentUrl = s3UploadUtil.saveFile(content, uploadTime, memberId);
 
             //RSS 피드 수정
             SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
