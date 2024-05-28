@@ -36,6 +36,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 	//RSS 피드 파싱
 	implementation 'org.jsoup:jsoup:1.15.3'
 	implementation 'com.rometools:rome:1.15.0'

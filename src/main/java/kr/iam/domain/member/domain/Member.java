@@ -21,7 +21,9 @@ public class Member extends BaseTimeEntity {
     private Long id;
 
     private String username;
-    private String password;
+    //private String password;
+    private String name;
+    private String email;
     private String image;
     private String rssFeed;
 
@@ -36,4 +38,11 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member")
     private List<UsingPlatform> usingPlatforms = new ArrayList<>();
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
