@@ -94,6 +94,8 @@ public class SecurityConfig {
                         .requestMatchers("/episode/**").permitAll()
                         .requestMatchers("/rssfeed").permitAll()
                         .requestMatchers("/rss").permitAll()
+                        .requestMatchers("/platform/{platformId}").permitAll()
+
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS
