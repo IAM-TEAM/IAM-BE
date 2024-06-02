@@ -1,5 +1,6 @@
 package kr.iam.global.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -25,59 +26,114 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //cookie들을 불러온 뒤 Authorization Key에 담긴 쿠키를 찾음
         String authorization = null;
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
 
-            System.out.println(cookie.getName());
-            if (cookie.getName().equals("Authorization")) {
-
-                authorization = cookie.getValue();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("Authorization")) {
+                    authorization = cookie.getValue();
+                }
             }
         }
 
-        //Authorization 헤더 검증
         if (authorization == null) {
-
             System.out.println("token null");
             filterChain.doFilter(request, response);
-
-            //조건이 해당되면 메소드 종료 (필수)
             return;
         }
 
-        //토큰
         String token = authorization;
 
-        //토큰 소멸 시간 검증
-        if (jwtUtil.isExpired(token)) {
+        try {
+            // 토큰에서 username과 role 획득
+            String username = jwtUtil.getUsername(token);
+            String role = jwtUtil.getRole(token);
 
-            System.out.println("token expired");
-            filterChain.doFilter(request, response);
+            //userDTO를 생성하여 값 set
+            MemberDTO userDTO = MemberDTO.builder()
+                    .username(username)
+                    .role(Role.valueOf(role))
+                    .build();
 
-            //조건이 해당되면 메소드 종료 (필수)
+            //UserDetails에 회원 정보 객체 담기
+            CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+
+            //스프링 시큐리티 인증 토큰 생성
+            Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+            //세션에 사용자 등록
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            System.out.println(username);
+            System.out.println("토큰이 유효합니다.");
+
+        } catch (ExpiredJwtException e) {
+            System.out.println("토큰이 만료되었습니다.");
+
+            // 토큰이 만료되었을 때 재발급 로직 추가
+            try {
+                // 만료된 토큰에서 username과 role을 추출
+                String username = e.getClaims().get("username", String.class);
+                String role = e.getClaims().get("role", String.class);
+
+                // 새로운 토큰 재발급
+                String newToken = jwtUtil.createJwt(username, role, 60*60*1000L); // 새로운 토큰 재발급 (1시간 유효기간)
+
+                // 새로운 토큰을 쿠키에 추가
+                response.addCookie(createCookie("Authorization", newToken));
+
+                // 재발급된 토큰을 사용하여 인증 정보 설정
+                token = newToken;
+
+                //userDTO를 생성하여 값 set
+                MemberDTO userDTO = MemberDTO.builder()
+                        .username(username)
+                        .role(Role.valueOf(role))
+                        .build();
+
+                //UserDetails에 회원 정보 객체 담기
+                CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+
+                //스프링 시큐리티 인증 토큰 생성
+                Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+                //세션에 사용자 등록
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                System.out.println("토큰이 재발급되었습니다.");
+            } catch (Exception ex) {
+                System.out.println("토큰 재발급 중 오류 발생: " + ex.getMessage());
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token validation error");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("토큰 검증 중 오류 발생: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token validation error");
             return;
         }
 
-        //토큰에서 username과 role 획득
-        String username = jwtUtil.getUsername(token);
-        String role = jwtUtil.getRole(token);
-
-        //userDTO를 생성하여 값 set
-        MemberDTO userDTO = MemberDTO.builder()
-                .username(username)
-                .role(Role.valueOf(role))
-                .build();
-
-        //UserDetails에 회원 정보 객체 담기
-        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
-
-        //스프링 시큐리티 인증 토큰 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
-        //세션에 사용자 등록
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
         filterChain.doFilter(request, response);
+
+        String requestUri = request.getRequestURI();
+
+//        if (requestUri.matches("^\\/login(?:\\/.*)?$")) {
+//
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//        if (requestUri.matches("^\\/oauth2(?:\\/.*)?$")) {
+//
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
     }
+
+    // 쿠키 생성 메소드 추가
+    private Cookie createCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
+
 }

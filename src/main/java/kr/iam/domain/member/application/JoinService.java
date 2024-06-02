@@ -30,7 +30,7 @@
 //        Member data = Member.builder()
 //                .username(username)
 //                .password(bCryptPasswordEncoder.encode(password))
-//                .role(Role.ROLE_ADMIN).build();
+//                .role(Role.ADMIN).build();
 //
 //        memberRepository.save(data);
 //
