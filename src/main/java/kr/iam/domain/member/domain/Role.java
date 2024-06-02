@@ -1,5 +1,5 @@
 package kr.iam.domain.member.domain;
 
 public enum Role {
-    ADMIN, MEMBER
+    ROLE_ADMIN, ROLE_MEMBER
 }

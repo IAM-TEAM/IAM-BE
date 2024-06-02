@@ -1,7 +1,6 @@
 package kr.iam.global.oauth;
 
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Objects;
 
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -38,26 +36,13 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
-        System.out.println(role);
 
         String token = jwtUtil.createJwt(username, role, 60*60*60L);
 
         response.addCookie(createCookie("Authorization", token));
-<<<<<<< HEAD
-        if(role.equals("ADMIN") || role.equals("ROLE_ADMIN")){
-            System.out.println("1");
-            response.sendRedirect("http://localhost:8080/admin");
-        }
-        else{
-            System.out.println("2");
-            response.sendRedirect("http://localhost:8080/my");
-        }
-        System.out.println("3");
-=======
-        //response.sendRedirect("http://localhost:8080/test");
-        getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080/test");
+        //response.sendRedirect("http://localhost:8080/admin");
+        getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000");
 
->>>>>>> main
     }
 
     private Cookie createCookie(String key, String value) {

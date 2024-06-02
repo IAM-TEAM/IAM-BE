@@ -64,6 +64,7 @@ public class JWTFilter extends OncePerRequestFilter {
             //세션에 사용자 등록
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
+            System.out.println(username);
             System.out.println("토큰이 유효합니다.");
 
         } catch (ExpiredJwtException e) {
@@ -114,16 +115,16 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String requestUri = request.getRequestURI();
 
-        if (requestUri.matches("^\\/login(?:\\/.*)?$")) {
-
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (requestUri.matches("^\\/oauth2(?:\\/.*)?$")) {
-
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        if (requestUri.matches("^\\/login(?:\\/.*)?$")) {
+//
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+//        if (requestUri.matches("^\\/oauth2(?:\\/.*)?$")) {
+//
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
     }
 
     // 쿠키 생성 메소드 추가
