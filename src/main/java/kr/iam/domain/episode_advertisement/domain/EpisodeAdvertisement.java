@@ -34,4 +34,13 @@ public class EpisodeAdvertisement extends BaseTimeEntity {
         this.advertisement = advertisement;
         this.episode = episode;
     }
+
+    public static EpisodeAdvertisement of(Episode episode, Advertisement advertisement, String advertiseStart) {
+        return EpisodeAdvertisement
+                .builder()
+                .advertise_start(advertiseStart)
+                .episode(episode)
+                .advertisement(advertisement)
+                .build();
+    }
 }

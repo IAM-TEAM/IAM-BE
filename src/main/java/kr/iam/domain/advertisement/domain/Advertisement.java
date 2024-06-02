@@ -21,12 +21,13 @@ public class Advertisement extends BaseTimeEntity {
     private long id;
     private String url;
     private Double price;
+    private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id")
     private Channel channel;
 
-    @OneToMany(mappedBy = "advertisement")
+    @OneToMany(mappedBy = "advertisement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EpisodeAdvertisement> episodeAdvertisementList = new ArrayList<>();
 
 }

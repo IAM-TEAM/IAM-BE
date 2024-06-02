@@ -43,6 +43,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String token = jwtUtil.createJwt(username, role, 60*60*60L);
 
         response.addCookie(createCookie("Authorization", token));
+<<<<<<< HEAD
         if(role.equals("ADMIN") || role.equals("ROLE_ADMIN")){
             System.out.println("1");
             response.sendRedirect("http://localhost:8080/admin");
@@ -52,6 +53,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             response.sendRedirect("http://localhost:8080/my");
         }
         System.out.println("3");
+=======
+        //response.sendRedirect("http://localhost:8080/test");
+        getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080/test");
+
+>>>>>>> main
     }
 
     private Cookie createCookie(String key, String value) {

@@ -1,33 +1,94 @@
 package kr.iam.domain.episode.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rometools.modules.itunes.EntryInformation;
 import com.rometools.modules.itunes.EntryInformationImpl;
-import com.rometools.modules.itunes.FeedInformation;
 import com.rometools.modules.itunes.FeedInformationImpl;
-import com.rometools.rome.feed.module.DCModuleImpl;
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.SyndFeedOutput;
-import kr.iam.domain.episode.application.S3Upload;
+import jakarta.servlet.http.HttpServletRequest;
+import kr.iam.domain.episode.application.EpisodeService;
+import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static kr.iam.domain.episode.dto.EpisodeDto.*;
+
 @Slf4j
 @RestController
+@RequestMapping("/episode")
 @RequiredArgsConstructor
 public class EpisodeController {
 
-    private final S3Upload s3Upload;
+    private final S3UploadUtil s3UploadUtil;
+    private final ObjectMapper objectMapper;
+    private final EpisodeService episodeService;
+
+    /**
+     * 에피소드 생성
+     * @param image
+     * @param content
+     * @param episodeData
+     * @param request
+     * @return
+     * @throws JsonProcessingException
+     */
+    @PostMapping
+    public ResponseEntity<String> uploadEpisode(@RequestPart(value = "image") MultipartFile image,
+                                                @RequestPart(value = "audio") MultipartFile content,
+                                                @RequestPart(value = "episodeData") String episodeData,
+                                                HttpServletRequest request) throws JsonProcessingException {
+        EpisodeSaveRequestDto requestDto = objectMapper.readValue(episodeData, EpisodeSaveRequestDto.class);
+        return ResponseEntity.ok(episodeService.saveEpisode(image, content, requestDto, request) + " created");
+    }
+
+    /**
+     * 에피소드 조회
+     * @param episodeId
+     * @return
+     */
+    @GetMapping("/{episodeId}")
+    public ResponseEntity<EpisodeInfoResponseDto> getEpisodeInfo(@PathVariable("episodeId") Long episodeId) {
+        return ResponseEntity.ok(episodeService.getEpisode(episodeId));
+    }
+
+    /**
+     * 에피소드 리스트 조회
+     * -1이면 임시 저장, 1이면 완료, 0이면 예정
+     * @param upload
+     * @param pageable
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/{upload}")
+    public ResponseEntity<Page<EpisodeListInfoDto>> getEpisodeList(@PathVariable("upload") int upload,
+                                                                   @PageableDefault Pageable pageable,
+                                                                   HttpServletRequest request) {
+        return ResponseEntity.ok(episodeService.getEpisodeList(upload, pageable, request));
+    }
+
+    /**
+     * 에피소드 삭제
+     * @param episodeId
+     * @return
+     */
+    @DeleteMapping("/{episodeId}")
+    public ResponseEntity<String> deleteEpisode(@PathVariable("episodeId") Long episodeId) {
+        episodeService.delete(episodeId);
+        return ResponseEntity.ok("ok");
+    }
 
     @GetMapping(value = "/rssfeed", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> getFeed() throws Exception {
@@ -70,7 +131,7 @@ public class EpisodeController {
 
         // RSS 피드 출력
         String result = new SyndFeedOutput().outputString(feed);
-        s3Upload.uploadRssFeed("test.xml", result);
+        s3UploadUtil.uploadRssFeed("test.xml", result);
         return ResponseEntity.ok().body(result);
     }
 }
