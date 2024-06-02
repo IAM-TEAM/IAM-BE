@@ -80,12 +80,13 @@ public class SecurityConfig {
         //oauth2
         http
                 .oauth2Login((oauth2) -> oauth2
+                        .defaultSuccessUrl("http://localhost:8080/test", true)
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler)
                 );
 
-        //경로별 인가 작업
+        //경로별 인가 s
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/").permitAll()
