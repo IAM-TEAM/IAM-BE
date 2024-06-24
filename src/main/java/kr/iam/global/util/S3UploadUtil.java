@@ -33,9 +33,11 @@ public class S3UploadUtil {
         amazonS3.putObject(new PutObjectRequest(bucket, keyName, stream, metadata));
     }
 
-    public String saveFile(MultipartFile multipartFile, LocalDateTime uploadTime, Long memberId, String type) throws IOException {
+    public String saveFile(MultipartFile multipartFile, LocalDateTime uploadTime, Long memberId) throws IOException {
         String extension = extractExtension(multipartFile);
         ObjectMetadata metadata = new ObjectMetadata();
+        String originalFilename = multipartFile.getOriginalFilename();
+        String type = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
         metadata.setContentLength(multipartFile.getSize());
         metadata.setContentType(multipartFile.getContentType());
         String key = "Member" + memberId + "_" + type + "_" + uploadTime + extension;

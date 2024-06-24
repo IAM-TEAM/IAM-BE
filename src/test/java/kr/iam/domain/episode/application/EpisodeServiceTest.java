@@ -93,9 +93,9 @@ class EpisodeServiceTest {
         when(cookieUtil.getCookieValue("channelId", request)).thenReturn(String.valueOf(channelId));
         when(memberService.findById(memberId)).thenReturn(member);
         when(channelService.findByChannelId(channelId)).thenReturn(channel);
-        when(s3UploadUtil.saveFile(null, episodeSaveRequestDto.getReservationTime(), memberId, "image"))
+        when(s3UploadUtil.saveFile(null, episodeSaveRequestDto.getReservationTime(), memberId))
                 .thenReturn(testUrl);
-        when(s3UploadUtil.saveFile(null, episodeSaveRequestDto.getReservationTime(), memberId, "audio"))
+        when(s3UploadUtil.saveFile(null, episodeSaveRequestDto.getReservationTime(), memberId))
                 .thenReturn(testUrl);
 
         //when
@@ -153,7 +153,7 @@ class EpisodeServiceTest {
         Episode episode = new Episode();
         when(episodeRepository.findById(episodeId))
                 .thenReturn(Optional.of(episode));
-        when(s3UploadUtil.saveFile(null, LocalDateTime.now(), memberId, null))
+        when(s3UploadUtil.saveFile(null, LocalDateTime.now(), memberId))
                 .thenReturn(null);
 
         //when
