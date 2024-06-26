@@ -9,4 +9,6 @@ public interface OAuth2Response {
     String getEmail();
     //사용자 실명 (설정한 이름)
     String getName();
+    //프로필 이미지
+    String getProfileImage();
 }

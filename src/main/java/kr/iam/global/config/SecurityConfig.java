@@ -91,10 +91,10 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         //테스트 용으로 허용
-                        .requestMatchers("/episode/**").permitAll()
-                        .requestMatchers("/rssfeed").permitAll()
-                        .requestMatchers("/rss").permitAll()
-                        .requestMatchers("/platform/{platformId}").permitAll()
+//                        .requestMatchers("/episode/**").permitAll()
+//                        .requestMatchers("/rssfeed").permitAll()
+//                        .requestMatchers("/rss").permitAll()
+//                        .requestMatchers("/platform/{platformId}").permitAll()
 
                         .anyRequest().authenticated());
 
