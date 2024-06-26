@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.iam.domain.member.dto.CustomOAuth2User;
 import kr.iam.global.jwt.JWTUtil;
+import kr.iam.global.util.CookieUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -15,14 +17,11 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+@RequiredArgsConstructor
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JWTUtil jwtUtil;
-
-    public CustomSuccessHandler(JWTUtil jwtUtil) {
-
-        this.jwtUtil = jwtUtil;
-    }
+    private final CookieUtil cookieUtil;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
@@ -39,7 +38,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = jwtUtil.createJwt(username, role, 60*60*60L);
 
-        response.addCookie(createCookie(token));
+        cookieUtil.createCookie("memberId", customUserDetails.getMemberId().toString(), response);
+        cookieUtil.createCookie("channelId", customUserDetails.getChannelId().toString(), response);
+        cookieUtil.createCookie("Authorization", token, response);
         //response.sendRedirect("http://localhost:8080/admin");
         getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000");
     }

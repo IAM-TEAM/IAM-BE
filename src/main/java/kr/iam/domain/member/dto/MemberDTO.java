@@ -10,4 +10,6 @@ public class MemberDTO {
     private Enum<Role> role;
     private String name;
     private String username;
+    private Long memberId;
+    private Long channelId;
 }

@@ -48,4 +48,12 @@ public class CustomOAuth2User implements OAuth2User {
 
         return memberDTO.getUsername();
     }
+
+    public Long getMemberId() {
+        return memberDTO.getMemberId();
+    }
+
+    public Long getChannelId() {
+        return memberDTO.getChannelId();
+    }
 }
