@@ -2,21 +2,18 @@ package kr.iam.global.util;
 
 import com.rometools.modules.itunes.EntryInformation;
 import com.rometools.modules.itunes.EntryInformationImpl;
-import com.rometools.rome.feed.rss.Image;
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.SyndFeedOutput;
 import com.rometools.rome.io.XmlReader;
 import lombok.extern.slf4j.Slf4j;
+import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
+import org.jdom2.input.SAXBuilder;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDateTime;
@@ -46,6 +43,29 @@ public class RssUtil {
         output.output(feed, writer);
         writer.close();  // 리소스 정리
         reader.close();  // XML Reader 닫기
+    }
+
+    public List<String> getCategories(String filePath) {
+        List<String> categories = new ArrayList<>();
+        try {
+            File file = new File(filePath);
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(file);
+
+            Element rootElement = document.getRootElement();
+            Element channel = rootElement.getChild("channel");
+
+            List<Element> categoryElements = channel.getChildren("category", rootElement.getNamespace("itunes"));
+
+            for (Element categoryElement : categoryElements) {
+                String category = categoryElement.getAttributeValue("text");
+                categories.add(category);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return categories;
     }
 
     public void deleteEpisode(String feedUrl, String episodeLink) throws IOException, FeedException {

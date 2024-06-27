@@ -1,13 +1,16 @@
 package kr.iam.domain.category.api;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.category.application.CategoryService;
 import kr.iam.domain.category.dto.CategoryDto;
+import kr.iam.domain.category.dto.CategoryMemberDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static kr.iam.domain.category.dto.CategoryDto.*;
+import static kr.iam.domain.category.dto.CategoryMemberDto.*;
 
 @RestController
 @RequestMapping("/category")
@@ -34,5 +37,10 @@ public class CategoryController {
     @PostMapping("/admin")
     public ResponseEntity<String> setCategory(@RequestBody CategorySaveRequestDto categorySaveRequestDto) {
         return ResponseEntity.ok(categoryService.saveCategory(categorySaveRequestDto) + " created");
+    }
+
+    @GetMapping("/member")
+    public ResponseEntity<CategoryMemberResponseDto> getCategoryByMemberId(HttpServletRequest request) {
+        return ResponseEntity.ok(categoryService.getMemberCategoryList(request));
     }
 }
