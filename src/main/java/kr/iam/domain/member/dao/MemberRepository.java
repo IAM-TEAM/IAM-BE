@@ -2,6 +2,7 @@ package kr.iam.domain.member.dao;
 
 import kr.iam.domain.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Boolean existsByUsername(String username);
@@ -9,5 +10,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsById(Long memberId);
 
-    boolean existsByName(String name);
+    Boolean existsByName(String name);
 }

@@ -26,7 +26,9 @@ public class MemberService {
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
 
-    public boolean existsMemberByName(String username) {
-        return memberRepository.existsByName(username);
+    public boolean existsMemberByName(String name) {
+        boolean exists = memberRepository.existsByName(name);
+        System.out.println("Check exists for name: " + name + " - " + exists);
+        return exists;
     }
 }
