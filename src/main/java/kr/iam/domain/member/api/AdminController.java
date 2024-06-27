@@ -1,14 +1,18 @@
 package kr.iam.domain.member.api;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import kr.iam.domain.member.application.MemberService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
-@ResponseBody
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/member")
 public class AdminController {
-    @GetMapping("/admin")
-    public String adminP(){
-        return "admin Controller";
+
+    private final MemberService memberService;
+
+    @GetMapping("/check")
+    public boolean checkDuplicate(@RequestParam String username) {
+        return memberService.existsMemberByName(username);
     }
 }
