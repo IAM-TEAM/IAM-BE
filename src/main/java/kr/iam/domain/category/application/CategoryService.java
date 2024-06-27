@@ -70,6 +70,17 @@ public class CategoryService {
         return CategoryResponseDtoList.builder().list(responseDtoList).build();
     }
 
+    public CategoryResponseDtoList getCategoryResponseDtoList(String name) {
+        Category category = categoryRepository.findByName(name)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CATEGORY_NOT_FOUND));
+
+        List<CategoryResponseDto> result = detailCategoryService.findAll(category).stream()
+                .map(CategoryResponseDto::fromSub)
+                .collect(Collectors.toList());
+
+        return CategoryResponseDtoList.builder().list(result).build();
+    }
+
     /**
      * 카테고리 정보 추출
      */

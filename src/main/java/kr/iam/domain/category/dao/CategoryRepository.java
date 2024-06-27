@@ -14,4 +14,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findAllCategory();
 
     Optional<Category> findByChannel(Channel channel);
+
+    Optional<Category> findByName(String name);
 }

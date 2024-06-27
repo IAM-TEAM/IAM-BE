@@ -39,6 +39,16 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.saveCategory(categorySaveRequestDto) + " created");
     }
 
+    /**
+     * Main 카테고리 클릭 시 서브 카테고리 리스트 출력
+     * @param name
+     * @return
+     */
+    @GetMapping("/sub")
+    public ResponseEntity<CategoryResponseDtoList> getSubCategoryList(@RequestParam String name) {
+        return ResponseEntity.ok(categoryService.getCategoryResponseDtoList(name));
+    }
+
     @GetMapping("/member")
     public ResponseEntity<CategoryMemberResponseDto> getCategoryByMemberId(HttpServletRequest request) {
         return ResponseEntity.ok(categoryService.getMemberCategoryList(request));

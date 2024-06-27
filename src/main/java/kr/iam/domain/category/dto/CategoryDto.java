@@ -1,6 +1,7 @@
 package kr.iam.domain.category.dto;
 
 import kr.iam.domain.category.domain.Category;
+import kr.iam.domain.detail_category.domain.DetailCategory;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,6 +48,10 @@ public class CategoryDto {
 
         public static CategoryResponseDto from(Category category) {
             return CategoryResponseDto.builder().id(category.getId()).name(category.getName()).build();
+        }
+
+        public static CategoryResponseDto fromSub(DetailCategory detailCategory) {
+            return CategoryResponseDto.builder().id(detailCategory.getId()).name(detailCategory.getName()).build();
         }
     }
 }
