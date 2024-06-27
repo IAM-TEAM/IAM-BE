@@ -17,6 +17,7 @@ public class DetailCategory extends BaseTimeEntity {
     private String name;
 
     //연관관계 주인
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
