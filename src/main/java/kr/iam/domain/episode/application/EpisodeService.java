@@ -78,7 +78,7 @@ public class EpisodeService {
             //RSS 피드 수정
             SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
                     "https://test.test.iam/member0/episodeId.e1e2e23r", uploadTime,
-                    contentUrl, imageUrl, "audio/mpeg", member.getUsername());
+                    contentUrl, imageUrl, "audio/mpeg", member.getName());
             rssUtil.addEpisode("https://anchor.fm/s/f5858a40/podcast/rss", newEpisode);
 
             //DB 업로드
@@ -155,6 +155,7 @@ public class EpisodeService {
 
     private List<EpisodeAdvertisement> toEpisodeAdvertisementList(Episode episode, String ads, String times) {
         List<String> adIds = toList(ads);
+
         List<String> startTimeList = toList(times);
         List<EpisodeAdvertisement> result = IntStream.range(0, adIds.size())
                 .mapToObj(i -> {

@@ -25,4 +25,8 @@ public class MemberService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
     }
+
+    public boolean existsMemberByName(String name) {
+        return memberRepository.existsByName(name);
+    }
 }
