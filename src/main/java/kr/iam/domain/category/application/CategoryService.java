@@ -70,6 +70,11 @@ public class CategoryService {
         return CategoryResponseDtoList.builder().list(responseDtoList).build();
     }
 
+    /**
+     * Main에 대한 Sub List 추출
+     * @param name
+     * @return
+     */
     public CategoryResponseDtoList getCategoryResponseDtoList(String name) {
         Category category = categoryRepository.findByName(name)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CATEGORY_NOT_FOUND));
@@ -83,6 +88,8 @@ public class CategoryService {
 
     /**
      * 카테고리 정보 추출
+     * 유저 선택 카테고리 추출 -> 해당 서비스는 유저 정보Dto 서비스로 이전될 예정
+     * 아마 RssFeed에서 유저의 모든 정보를 꺼내오고 메인 카테고리 기능만 남지 않을까 싶음
      */
     public CategoryMemberResponseDto getMemberCategoryList(HttpServletRequest request) {
         Long memberId = Long.valueOf(cookieUtil.getCookieValue("memberId", request));
