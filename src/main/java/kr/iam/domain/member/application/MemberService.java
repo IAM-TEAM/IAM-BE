@@ -17,6 +17,12 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+    public String getRssFeedUrl(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        return member.getRssFeed();
+    }
+
     public Boolean existsMemberById(Long memberId) {
         return memberRepository.existsById(memberId);
     }
