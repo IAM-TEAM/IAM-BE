@@ -27,8 +27,6 @@ public class MemberService {
     }
 
     public boolean existsMemberByName(String name) {
-        boolean exists = memberRepository.existsByName(name);
-        System.out.println("Check exists for name: " + name + " - " + exists);
-        return exists;
+        return memberRepository.existsByName(name);
     }
 }
