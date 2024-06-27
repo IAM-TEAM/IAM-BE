@@ -32,14 +32,59 @@
       <height>-1</height>
     </image>
     <item>
+      <title>6월27일</title>
+      <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">이영찬</dc:creator>
+      <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <description>테스팅1</description>
+      <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_mov_2024-06-27T13%3A39%3A59.635653.mov" length="1781818" type="audio/mpeg" />
+      <pubDate>Thu, 27 Jun 2024 04:39:59 GMT</pubDate>
+      <guid>https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <dc:date>2024-06-27T04:39:59Z</dc:date>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_png_2024-06-27T13%3A39%3A59.635653.png" />
+      <itunes:keywords />
+      <itunes:summary>description</itunes:summary>
+    </item>
+    <item>
+      <title>6월27일</title>
+      <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">google 114425392065405670288</dc:creator>
+      <description>테스팅1</description>
+      <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_mov_2024-06-27T13%3A35%3A10.331773.mov" length="1781818" type="audio/mpeg" />
+      <pubDate>Thu, 27 Jun 2024 04:35:10 GMT</pubDate>
+      <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <dc:date>2024-06-27T04:35:10Z</dc:date>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_png_2024-06-27T13%3A35%3A10.331773.png" />
+      <itunes:keywords />
+      <itunes:summary>description</itunes:summary>
+    </item>
+    <item>
       <title>졸리당</title>
       <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
       <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">google 114425392065405670288</dc:creator>
+      <description>응애</description>
+      <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_mov_2024-06-27T13%3A32%3A55.710127.mov" length="194523724" type="audio/mpeg" />
+      <pubDate>Thu, 27 Jun 2024 04:32:55 GMT</pubDate>
       <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <dc:date>2024-06-27T04:32:55Z</dc:date>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_png_2024-06-27T13%3A32%3A55.710127.png" />
+      <itunes:keywords />
+      <itunes:summary>description</itunes:summary>
+    </item>
+    <item>
+      <title>졸리당</title>
+      <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">google 114425392065405670288</dc:creator>
       <description>응애</description>
       <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_mov_2024-06-26T16%3A28%3A36.258494.mov" length="194523724" type="audio/mpeg" />
       <pubDate>Wed, 26 Jun 2024 07:28:36 GMT</pubDate>
-      <guid>https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
       <dc:date>2024-06-26T07:28:36Z</dc:date>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>no</itunes:explicit>
