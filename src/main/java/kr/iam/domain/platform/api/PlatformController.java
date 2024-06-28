@@ -1,5 +1,6 @@
 package kr.iam.domain.platform.api;
 
+import io.swagger.v3.oas.annotations.Operation;
 import kr.iam.domain.platform.application.PlatformService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ public class PlatformController {
 
     private final PlatformService platformService;
 
+    @Operation(summary = "플렛폼 조회", description = "플랫폼 Id 기반으로 플랫폼 하이퍼링크? 이동")
     @GetMapping("/{platformId}")
     public String getPlatform(@PathVariable Long platformId){
         return platformService.getPlatform(platformId);

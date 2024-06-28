@@ -7,6 +7,7 @@ import com.rometools.modules.itunes.EntryInformationImpl;
 import com.rometools.modules.itunes.FeedInformationImpl;
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.SyndFeedOutput;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.episode.application.EpisodeService;
 import kr.iam.global.util.S3UploadUtil;
@@ -45,6 +46,7 @@ public class EpisodeController {
      * @return
      * @throws JsonProcessingException
      */
+    @Operation(summary = "에피소드 생성", description = "에피소드 생성(이미지, 오디오 파일 필수) RequestPart로 formData 형식")
     @PostMapping
     public ResponseEntity<String> uploadEpisode(@RequestPart(value = "image") MultipartFile image,
                                                 @RequestPart(value = "audio") MultipartFile content,
@@ -59,6 +61,7 @@ public class EpisodeController {
      * @param episodeId
      * @return
      */
+    @Operation(summary = "에피소드 조회", description = "에피소드 조회(Id를 PathVariable로 받음)")
     @GetMapping("/{episodeId}")
     public ResponseEntity<EpisodeInfoResponseDto> getEpisodeInfo(@PathVariable("episodeId") Long episodeId) {
         return ResponseEntity.ok(episodeService.getEpisode(episodeId));
@@ -72,6 +75,7 @@ public class EpisodeController {
      * @param request
      * @return
      */
+    @Operation(summary = "에피소드 리스트 조회", description = "upload가 1이면 완료 0이면 예정 -1이면 임시 저장")
     @GetMapping("/list/{upload}")
     public ResponseEntity<Page<EpisodeListInfoDto>> getEpisodeList(@PathVariable("upload") int upload,
                                                                    @PageableDefault Pageable pageable,
@@ -84,6 +88,7 @@ public class EpisodeController {
      * @param episodeId
      * @return
      */
+    @Operation(summary = "에피소드 삭제", description = "PathVariable로 episodeId를 받아서 해당 에피소드 삭제 + RSS Feed도 같이 삭제")
     @DeleteMapping("/{episodeId}")
     public ResponseEntity<String> deleteEpisode(@PathVariable("episodeId") Long episodeId) {
         episodeService.delete(episodeId);

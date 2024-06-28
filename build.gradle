@@ -47,6 +47,8 @@ dependencies {
 	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.0'
 	// JAXB Runtime
 	implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.0'
+
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 }
 
 tasks.named('test') {
