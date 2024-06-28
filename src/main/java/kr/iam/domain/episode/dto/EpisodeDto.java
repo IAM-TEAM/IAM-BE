@@ -1,17 +1,19 @@
 package kr.iam.domain.episode.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import kr.iam.domain.episode.domain.Episode;
 import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
-import kr.iam.domain.episode_advertisement.dto.EpisodeAdvertisementDto;
+import kr.iam.global.config.CustomLocalDateTimeDeserializer;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static kr.iam.domain.episode_advertisement.dto.EpisodeAdvertisementDto.*;
 
@@ -19,6 +21,8 @@ public class EpisodeDto {
 
     @Getter
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class EpisodeSaveRequestDto {
         private String image;
         private String title;
@@ -27,6 +31,7 @@ public class EpisodeDto {
         private String advertiseStart;
         private String advertiseId;
         private Boolean age;
+        @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
         private LocalDateTime reservationTime;
         private Integer upload;
     }

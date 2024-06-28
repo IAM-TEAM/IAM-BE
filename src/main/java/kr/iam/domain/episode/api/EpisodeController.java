@@ -53,6 +53,7 @@ public class EpisodeController {
                                                 @RequestPart(value = "episodeData") String episodeData,
                                                 HttpServletRequest request) throws JsonProcessingException {
         EpisodeSaveRequestDto requestDto = objectMapper.readValue(episodeData, EpisodeSaveRequestDto.class);
+        log.info("time={}", requestDto.getReservationTime());
         return ResponseEntity.ok(episodeService.saveEpisode(image, content, requestDto, request) + " created");
     }
 

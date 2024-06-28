@@ -22,9 +22,11 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.springframework.stereotype.Component;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -34,10 +36,10 @@ import java.util.*;
 @Component
 public class RssUtil {
 
-
     public String updateRssFeed(String existingFeedUrl, String newTitle, String newLink, String newAuthor,
                                 String newDescription, String category, String email, String imageUrl) {
         try {
+            Date now = convertToUtcDate(LocalDateTime.now());
             // 기존 피드 읽기
             URL feedUrl = new URL(existingFeedUrl);
             SyndFeedInput input = new SyndFeedInput();
@@ -55,7 +57,7 @@ public class RssUtil {
                 if (module instanceof DCModule) {
                     dcModule = (DCModule) module;
                     dcModule.setRights(newAuthor);
-                    dcModule.setDate(new Date());
+                    dcModule.setDate(now);
                 } else if (module instanceof FeedInformation) {
                     itunesInfo = (FeedInformation) module;
                 }
@@ -63,7 +65,7 @@ public class RssUtil {
             if (dcModule == null) {
                 dcModule = new DCModuleImpl();
                 dcModule.setRights(newAuthor);
-                dcModule.setDate(new Date());
+                dcModule.setDate(now);
                 modules.add(dcModule);
             }
 
@@ -115,7 +117,7 @@ public class RssUtil {
      */
     public String createRssFeed() {
         LocalDateTime date = LocalDateTime.now();
-        Date now = convertToKstDate(date);
+        Date now = convertToUtcDate(date);
         try {
             SyndFeed feed = new SyndFeedImpl();
             feed.setFeedType("rss_2.0");
@@ -180,23 +182,55 @@ public class RssUtil {
 
     public void addEpisode(String feedUrl, SyndEntry newEpisode) throws IOException, FeedException {
         // 기존 피드 파일을 읽기
-        String filePath = "updated_feed.xml";
-//        URL url = new URL(feedUrl);
-//        XmlReader reader = new XmlReader(url);
-        File file = new File(filePath);
-        FileInputStream inputStream = new FileInputStream(file);
-        XmlReader reader = new XmlReader(inputStream);
+        URL url = new URL(feedUrl);
+        XmlReader reader = new XmlReader(url);
         SyndFeed feed = new SyndFeedInput().build(reader);
 
         // 기존 피드에 새로운 항목 추가
         feed.getEntries().add(0, newEpisode);  // Add at the beginning of the list
 
-        // 파일에 새로운 피드를 덮어쓰기로 출력
-        FileWriter writer = new FileWriter(file);  // 기존 파일 경로를 사용하여 파일을 덮어쓰기
+        // 새로운 피드를 String으로 변환
+        StringWriter stringWriter = new StringWriter();
         SyndFeedOutput output = new SyndFeedOutput();
-        output.output(feed, writer);
-        writer.close();  // 리소스 정리
-        reader.close();  // XML Reader 닫기
+        output.output(feed, stringWriter);
+        String updatedFeed = stringWriter.toString();
+
+        // URL에 새로운 피드를 덮어쓰기
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Type", "application/rss+xml; charset=UTF-8");
+
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(updatedFeed.getBytes("UTF-8"));
+        outputStream.flush();
+        outputStream.close();
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Failed to update feed: HTTP response code " + responseCode);
+        }
+
+        // 리소스 정리
+        reader.close();
+        stringWriter.close();
+//        String filePath = "updated_feed.xml";
+////        URL url = new URL(feedUrl);
+////        XmlReader reader = new XmlReader(url);
+//        File file = new File(filePath);
+//        FileInputStream inputStream = new FileInputStream(file);
+//        XmlReader reader = new XmlReader(inputStream);
+//        SyndFeed feed = new SyndFeedInput().build(reader);
+//
+//        // 기존 피드에 새로운 항목 추가
+//        feed.getEntries().add(0, newEpisode);  // Add at the beginning of the list
+//
+//        // 파일에 새로운 피드를 덮어쓰기로 출력
+//        FileWriter writer = new FileWriter(file);  // 기존 파일 경로를 사용하여 파일을 덮어쓰기
+//        SyndFeedOutput output = new SyndFeedOutput();
+//        output.output(feed, writer);
+//        writer.close();  // 리소스 정리
+//        reader.close();  // XML Reader 닫기
     }
 
     public List<String> getCategories(String filePath) {
@@ -253,7 +287,7 @@ public class RssUtil {
 
     public SyndEntry createNewEpisode(String title, String description, String link, LocalDateTime pubDate,
                                       String enclosureUrl, String imageUrl, String type, String creator) {
-        Date date = Date.from(pubDate.atZone(ZoneId.systemDefault()).toInstant());
+        Date date = convertToUtcDate(pubDate);
         SyndEntry entry = new SyndEntryImpl();
         entry.setTitle(title);
         entry.setLink(link);
@@ -288,6 +322,14 @@ public class RssUtil {
         guid.setText(link);
         guid.setAttribute("isPermaLink", "false");
         entry.getForeignMarkup().add(guid);
+
+        Element pubDateElement = new Element("pubDate");
+        pubDateElement.setText(formatPubDate(date));
+        entry.getForeignMarkup().add(pubDateElement);
+
+        Element dcDateElement = new Element("date", dcNamespace);
+        dcDateElement.setText(formatDcDate(date));
+        entry.getForeignMarkup().add(dcDateElement);
         return entry;
     }
 
@@ -310,10 +352,44 @@ public class RssUtil {
         return content;
     }
 
-    private Date convertToKstDate(LocalDateTime localDateTime) {
-        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of("Asia/Seoul")).minusHours(3);
+    public Date convertToUtcDate(LocalDateTime localDateTime) {
+        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC"));
         return Date.from(zonedDateTime.toInstant());
     }
+
+    public String formatPubDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(date);
+    }
+
+    public String formatDcDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(date);
+    }
+
+//    private Date convertToKstDate(LocalDateTime localDateTime) {
+//        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of("Asia/Seoul")).minusHours(3);
+//        return Date.from(zonedDateTime.toInstant());
+//    }
+//
+//    public Date convertToKstDateSame(LocalDateTime localDateTime) {
+//        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of("Asia/Seoul"));
+//        return Date.from(zonedDateTime.toInstant());
+//    }
+//
+//    public String formatPubDate(Date date) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+//        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+//        return sdf.format(date);
+//    }
+//
+//    public String formatDcDate(Date date) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+//        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+//        return sdf.format(date);
+//    }
 
     private String addAtomNamespaceAndFormat(String feedString) {
         try {

@@ -79,7 +79,7 @@ public class EpisodeService {
             SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
                     "https://test.test.iam/member0/episodeId.e1e2e23r", uploadTime,
                     contentUrl, imageUrl, "audio/mpeg", member.getName());
-            rssUtil.addEpisode("https://anchor.fm/s/f5858a40/podcast/rss", newEpisode);
+            rssUtil.addEpisode(member.getRssFeed(), newEpisode);
 
             //DB 업로드
             Episode episode = Episode.of(requestDto, channel, imageUrl, contentUrl, uploadTime);
