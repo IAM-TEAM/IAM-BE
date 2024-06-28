@@ -23,14 +23,16 @@ public class S3UploadUtil {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public void uploadRssFeed(String keyName, String rssFeedXml) {
+    public String uploadRssFeed(String keyName, String rssFeedXml) {
+        String modifiedKeyName = keyName + "-rss";
         InputStream stream = new ByteArrayInputStream(rssFeedXml.getBytes());
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("application/rss+xml");
         metadata.addUserMetadata("title", "RSS Feed");
         metadata.setContentEncoding("UTF-8");
 
-        amazonS3.putObject(new PutObjectRequest(bucket, keyName, stream, metadata));
+        amazonS3.putObject(new PutObjectRequest(bucket, modifiedKeyName, stream, metadata));
+        return amazonS3.getUrl(bucket, modifiedKeyName).toString();
     }
 
     public String saveFile(MultipartFile multipartFile, LocalDateTime uploadTime, Long memberId) throws IOException {

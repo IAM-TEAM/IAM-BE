@@ -2,6 +2,12 @@ package kr.iam.global.util;
 
 import com.rometools.modules.itunes.EntryInformation;
 import com.rometools.modules.itunes.EntryInformationImpl;
+import com.rometools.modules.itunes.FeedInformation;
+import com.rometools.modules.itunes.FeedInformationImpl;
+import com.rometools.modules.itunes.types.Duration;
+import com.rometools.rome.feed.module.DCModule;
+import com.rometools.rome.feed.module.DCModuleImpl;
+import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedInput;
@@ -23,6 +29,77 @@ import java.util.*;
 @Slf4j
 @Component
 public class RssUtil {
+
+    public String createRssFeed() {
+        try {
+            SyndFeed feed = new SyndFeedImpl();
+            feed.setFeedType("rss_2.0");
+
+            feed.setTitle("");
+            feed.setLink("");
+            feed.setDescription("");
+            feed.setLanguage("");
+            feed.setCopyright("");
+            feed.setPublishedDate(new Date());
+            feed.setGenerator("");
+
+            List<SyndEntry> entries = new ArrayList<>();
+            SyndEntry entry = new SyndEntryImpl();
+            entry.setTitle("");
+            entry.setLink("");
+            entry.setDescription(createDescription(""));
+            entry.setPublishedDate(new Date());
+            entry.setAuthor("");
+
+            SyndEnclosure enclosure = new SyndEnclosureImpl();
+            enclosure.setUrl("");
+            enclosure.setLength(0);
+            enclosure.setType("");
+            List<SyndEnclosure> enclosures = new ArrayList<>();
+            enclosures.add(enclosure);
+            entry.setEnclosures(enclosures);
+
+            List<Module> entryModules = new ArrayList<>();
+
+            DCModule dcModule = new DCModuleImpl();
+            dcModule.setDate(new Date());
+            dcModule.setLanguage("");
+            dcModule.setRights("");
+            entryModules.add(dcModule);
+
+            EntryInformation itunesModule = new EntryInformationImpl();
+            itunesModule.setAuthor("");
+            itunesModule.setDuration(new Duration(0));
+            itunesModule.setImageUri("");
+            itunesModule.setExplicit(false);
+            itunesModule.setEpisodeType("");
+            entryModules.add(itunesModule);
+
+            entry.setModules(entryModules);
+
+            entries.add(entry);
+            feed.setEntries(entries);
+
+            List<Module> feedModules = new ArrayList<>();
+            FeedInformation feedInfo = new FeedInformationImpl();
+            feedInfo.setOwnerName("");
+            feedInfo.setOwnerEmailAddress("");
+            feedInfo.setCategories(Collections.emptyList());
+            feedInfo.setType("");
+            feedInfo.setAuthor("");
+            feedInfo.setExplicit(false);
+            feedInfo.setImageUri("");
+            feedModules.add(feedInfo);
+
+            feed.setModules(feedModules);
+
+            SyndFeedOutput output = new SyndFeedOutput();
+            return output.outputString(feed);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     public void addEpisode(String feedUrl, SyndEntry newEpisode) throws IOException, FeedException {
         // 기존 피드 파일을 읽기
@@ -147,5 +224,12 @@ public class RssUtil {
             System.err.println("Error getting file size: " + e.getMessage());
             return -1;
         }
+    }
+
+    private SyndContent createDescription(String description) {
+        SyndContent content = new SyndContentImpl();
+        content.setType("text/plain");
+        content.setValue(description);
+        return content;
     }
 }

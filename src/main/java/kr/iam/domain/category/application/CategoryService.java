@@ -86,6 +86,11 @@ public class CategoryService {
         return CategoryResponseDtoList.builder().list(result).build();
     }
 
+    public Category findByName(String name) {
+        return categoryRepository.findByName(name)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CATEGORY_NOT_FOUND));
+    }
+
     /**
      * 카테고리 정보 추출
      * 유저 선택 카테고리 추출 -> 해당 서비스는 유저 정보Dto 서비스로 이전될 예정
