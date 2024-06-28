@@ -25,11 +25,12 @@ public class S3UploadUtil {
 
     public String uploadRssFeed(String keyName, String rssFeedXml) {
         String modifiedKeyName = keyName + "-rss";
-        InputStream stream = new ByteArrayInputStream(rssFeedXml.getBytes());
+        InputStream stream = new ByteArrayInputStream(rssFeedXml.getBytes(StandardCharsets.UTF_8));
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType("application/rss+xml");
-        metadata.addUserMetadata("title", "RSS Feed");
+        metadata.setContentType("application/rss+xml; charset=UTF-8");
         metadata.setContentEncoding("UTF-8");
+
+        metadata.setContentLength(rssFeedXml.getBytes(StandardCharsets.UTF_8).length);
 
         amazonS3.putObject(new PutObjectRequest(bucket, modifiedKeyName, stream, metadata));
         return amazonS3.getUrl(bucket, modifiedKeyName).toString();

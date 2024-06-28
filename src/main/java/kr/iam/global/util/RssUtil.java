@@ -4,7 +4,6 @@ import com.rometools.modules.itunes.EntryInformation;
 import com.rometools.modules.itunes.EntryInformationImpl;
 import com.rometools.modules.itunes.FeedInformation;
 import com.rometools.modules.itunes.FeedInformationImpl;
-import com.rometools.modules.itunes.types.Duration;
 import com.rometools.rome.feed.module.DCModule;
 import com.rometools.rome.feed.module.DCModuleImpl;
 import com.rometools.rome.feed.module.Module;
@@ -18,69 +17,51 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Slf4j
 @Component
 public class RssUtil {
 
+    /**
+     * 필요한 것
+     * 채널 타이틀, 생성 유저 페이지 링크, 유저 이름, 채널 묘사,
+     * @return
+     */
     public String createRssFeed() {
+        LocalDateTime date = LocalDateTime.now();
+        Date now = convertToKstDate(date);
+        log.info("date={}", now);
         try {
             SyndFeed feed = new SyndFeedImpl();
             feed.setFeedType("rss_2.0");
 
-            feed.setTitle("");
+            feed.setTitle("테스팅");
             feed.setLink("");
             feed.setDescription("");
-            feed.setLanguage("");
+            feed.setLanguage("ko");
             feed.setCopyright("");
-            feed.setPublishedDate(new Date());
+            feed.setPublishedDate(now);
             feed.setGenerator("");
 
-            List<SyndEntry> entries = new ArrayList<>();
-            SyndEntry entry = new SyndEntryImpl();
-            entry.setTitle("");
-            entry.setLink("");
-            entry.setDescription(createDescription(""));
-            entry.setPublishedDate(new Date());
-            entry.setAuthor("");
-
-            SyndEnclosure enclosure = new SyndEnclosureImpl();
-            enclosure.setUrl("");
-            enclosure.setLength(0);
-            enclosure.setType("");
-            List<SyndEnclosure> enclosures = new ArrayList<>();
-            enclosures.add(enclosure);
-            entry.setEnclosures(enclosures);
-
-            List<Module> entryModules = new ArrayList<>();
+            List<Module> feedModules = new ArrayList<>();
 
             DCModule dcModule = new DCModuleImpl();
-            dcModule.setDate(new Date());
-            dcModule.setLanguage("");
+            dcModule.setDate(now);
+            dcModule.setLanguage("ko");
             dcModule.setRights("");
-            entryModules.add(dcModule);
+            feedModules.add(dcModule);
 
-            EntryInformation itunesModule = new EntryInformationImpl();
-            itunesModule.setAuthor("");
-            itunesModule.setDuration(new Duration(0));
-            itunesModule.setImageUri("");
-            itunesModule.setExplicit(false);
-            itunesModule.setEpisodeType("");
-            entryModules.add(itunesModule);
-
-            entry.setModules(entryModules);
-
-            entries.add(entry);
-            feed.setEntries(entries);
-
-            List<Module> feedModules = new ArrayList<>();
             FeedInformation feedInfo = new FeedInformationImpl();
             feedInfo.setOwnerName("");
             feedInfo.setOwnerEmailAddress("");
@@ -89,12 +70,35 @@ public class RssUtil {
             feedInfo.setAuthor("");
             feedInfo.setExplicit(false);
             feedInfo.setImageUri("");
+            feedInfo.setSummary("test2");
             feedModules.add(feedInfo);
 
             feed.setModules(feedModules);
 
+            // atom:link 태그 설정
+            List<SyndLink> list = new ArrayList<>();
+            SyndLinkImpl selfLink = new SyndLinkImpl();
+            selfLink.setRel("self");
+            selfLink.setHref("https://anchor.fm/s/f5858a40/podcast/rss");
+            selfLink.setType("application/rss+xml");
+            list.add(selfLink);
+
+            SyndLinkImpl hubLink = new SyndLinkImpl();
+            hubLink.setRel("hub");
+            hubLink.setHref("https://pubsubhubbub.appspot.com/");
+            list.add(hubLink);
+            feed.setLinks(list);
+
             SyndFeedOutput output = new SyndFeedOutput();
-            return output.outputString(feed);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            OutputStreamWriter writer = new OutputStreamWriter(byteArrayOutputStream, StandardCharsets.UTF_8);
+            output.output(feed, writer);
+            writer.flush();
+
+            String result =  byteArrayOutputStream.toString(StandardCharsets.UTF_8);
+            log.info("Rss={}", result);
+            result = addAtomNamespaceAndFormat(result);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -231,5 +235,50 @@ public class RssUtil {
         content.setType("text/plain");
         content.setValue(description);
         return content;
+    }
+
+    private Date convertToKstDate(LocalDateTime localDateTime) {
+        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of("Asia/Seoul")).minusHours(3);
+        return Date.from(zonedDateTime.toInstant());
+    }
+
+    private String addAtomNamespaceAndFormat(String feedString) {
+        try {
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(new StringReader(feedString));
+
+            Element rootElement = document.getRootElement();
+            Namespace atomNamespace = Namespace.getNamespace("atom", "http://www.w3.org/2005/Atom");
+
+            // Add atom namespace
+            rootElement.addNamespaceDeclaration(atomNamespace);
+
+            // Add atom:link elements
+            Element selfLink = new Element("link", atomNamespace);
+            selfLink.setAttribute("rel", "self");
+            selfLink.setAttribute("href", "https://anchor.fm/s/f5858a40/podcast/rss");
+            selfLink.setAttribute("type", "application/rss+xml");
+
+            Element hubLink = new Element("link", atomNamespace);
+            hubLink.setAttribute("rel", "hub");
+            hubLink.setAttribute("href", "https://pubsubhubbub.appspot.com/");
+
+            rootElement.getChild("channel").addContent(selfLink);
+            rootElement.getChild("channel").addContent(hubLink);
+
+            // Format XML
+            Format format = Format.getPrettyFormat();
+            format.setIndent("    ");  // Set indentation
+            format.setLineSeparator("\n");  // Set line separator
+
+            XMLOutputter xmlOutputter = new XMLOutputter(format);
+            StringWriter stringWriter = new StringWriter();
+            xmlOutputter.output(document, stringWriter);
+
+            return stringWriter.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return feedString;
+        }
     }
 }
