@@ -36,6 +36,19 @@ public class S3UploadUtil {
         return amazonS3.getUrl(bucket, modifiedKeyName).toString();
     }
 
+    public String saveProfileImage(MultipartFile multipartFile, Long memberId) throws IOException {
+        String extension = extractExtension(multipartFile);
+        ObjectMetadata metadata = new ObjectMetadata();
+        String originalFilename = multipartFile.getOriginalFilename();
+        String type = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        metadata.setContentLength(multipartFile.getSize());
+        metadata.setContentType(multipartFile.getContentType());
+        String key = "Member Profile" + memberId + extension;
+        amazonS3.putObject(bucket, key, multipartFile.getInputStream(), metadata);
+        log.info("{}타입 {} 업로드 완료", multipartFile.getContentType(), key);
+        return amazonS3.getUrl(bucket, key).toString();
+    }
+
     public String saveFile(MultipartFile multipartFile, LocalDateTime uploadTime, Long memberId) throws IOException {
         String extension = extractExtension(multipartFile);
         ObjectMetadata metadata = new ObjectMetadata();

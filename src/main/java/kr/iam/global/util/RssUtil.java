@@ -4,6 +4,7 @@ import com.rometools.modules.itunes.EntryInformation;
 import com.rometools.modules.itunes.EntryInformationImpl;
 import com.rometools.modules.itunes.FeedInformation;
 import com.rometools.modules.itunes.FeedInformationImpl;
+import com.rometools.modules.itunes.types.Category;
 import com.rometools.rome.feed.module.DCModule;
 import com.rometools.rome.feed.module.DCModuleImpl;
 import com.rometools.rome.feed.module.Module;
@@ -33,15 +34,88 @@ import java.util.*;
 @Component
 public class RssUtil {
 
+
+    public String updateRssFeed(String existingFeedUrl, String newTitle, String newLink, String newAuthor,
+                                String newDescription, String category, String email, String imageUrl) {
+        try {
+            // 기존 피드 읽기
+            URL feedUrl = new URL(existingFeedUrl);
+            SyndFeedInput input = new SyndFeedInput();
+            SyndFeed feed = input.build(new XmlReader(feedUrl));
+
+            // 새로운 정보로 업데이트
+            feed.setTitle(newTitle);
+            feed.setLink(newLink);
+            feed.setDescription(newDescription);
+
+            List<Module> modules = feed.getModules();
+            DCModule dcModule = null;
+            FeedInformation itunesInfo = null;
+            for (Module module : modules) {
+                if (module instanceof DCModule) {
+                    dcModule = (DCModule) module;
+                    dcModule.setRights(newAuthor);
+                    dcModule.setDate(new Date());
+                } else if (module instanceof FeedInformation) {
+                    itunesInfo = (FeedInformation) module;
+                }
+            }
+            if (dcModule == null) {
+                dcModule = new DCModuleImpl();
+                dcModule.setRights(newAuthor);
+                dcModule.setDate(new Date());
+                modules.add(dcModule);
+            }
+
+            if (itunesInfo == null) {
+                itunesInfo = new FeedInformationImpl();
+                modules.add(itunesInfo);
+            }
+
+            // iTunes 정보 업데이트
+            itunesInfo.setOwnerEmailAddress(email);
+            itunesInfo.setOwnerName(newAuthor);
+            itunesInfo.setAuthor(newAuthor);
+            itunesInfo.setImageUri(imageUrl);
+            itunesInfo.setSummary(newDescription);
+            itunesInfo.setExplicit(false);
+            itunesInfo.setType("episodic");
+
+            List<Category> itunesCategories = new ArrayList<>();
+            itunesCategories.add(new Category(category));
+            itunesInfo.setCategories(itunesCategories);
+
+            feed.setModules(modules);
+
+            SyndFeedOutput output = new SyndFeedOutput();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            OutputStreamWriter writer = new OutputStreamWriter(byteArrayOutputStream, StandardCharsets.UTF_8);
+            output.output(feed, writer);
+            writer.flush();
+
+            String feedString = byteArrayOutputStream.toString(StandardCharsets.UTF_8);
+
+            // XML 수정 및 포맷팅
+            //feedString = addAtomNamespaceAndFormat(feedString);
+
+            log.info("Modified RSS Feed:\n{}", feedString);
+
+            return feedString;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
+     * 최초 로그인 시 Rss Feed가 없다면 생성
      * 필요한 것
-     * 채널 타이틀, 생성 유저 페이지 링크, 유저 이름, 채널 묘사,
+     * 채널 타이틀, 생성 유저 페이지 링크, 유저 이름, 채널 묘사
      * @return
      */
     public String createRssFeed() {
         LocalDateTime date = LocalDateTime.now();
         Date now = convertToKstDate(date);
-        log.info("date={}", now);
         try {
             SyndFeed feed = new SyndFeedImpl();
             feed.setFeedType("rss_2.0");
@@ -96,7 +170,6 @@ public class RssUtil {
             writer.flush();
 
             String result =  byteArrayOutputStream.toString(StandardCharsets.UTF_8);
-            log.info("Rss={}", result);
             result = addAtomNamespaceAndFormat(result);
             return result;
         } catch (Exception e) {

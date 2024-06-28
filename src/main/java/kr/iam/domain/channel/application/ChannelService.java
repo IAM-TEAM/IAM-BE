@@ -7,8 +7,10 @@ import kr.iam.domain.channel.dao.ChannelRepository;
 import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.channel.dto.ChannelDto;
 import kr.iam.domain.member.application.MemberService;
+import kr.iam.domain.member.domain.Member;
 import kr.iam.global.exception.BusinessLogicException;
 import kr.iam.global.exception.code.ExceptionCode;
+import kr.iam.global.util.CookieUtil;
 import kr.iam.global.util.RssUtil;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class ChannelService {
     private final CategoryService categoryService;
     private final S3UploadUtil s3UploadUtil;
     private final RssUtil rssUtil;
+    private final CookieUtil cookieUtil;
 
     public boolean existsChannelById(Long channelId) {
         return channelRepository.existsById(channelId);
@@ -57,17 +60,23 @@ public class ChannelService {
     @Transactional
     public void updateInfo(MultipartFile file, ChannelSaveRequestDto channelSaveRequestDto,
                          HttpServletRequest request) throws IOException {
-        Long memberId = Long.parseLong(request.getParameter("memberId"));
-        Long channelId = Long.parseLong(request.getParameter("channelId"));
+        Long memberId = Long.parseLong(cookieUtil.getCookieValue("memberId", request));
+        Long channelId = Long.parseLong(cookieUtil.getCookieValue("channelId", request));
         String mainCategory = channelSaveRequestDto.getChannelCategory();
         String subCategory = channelSaveRequestDto.getChannelDetailCategory();
         Category byName = categoryService.findByName(mainCategory);
-        memberService.updateMember(memberId, channelSaveRequestDto.getUsername());
+        Member member = memberService.updateMember(memberId, channelSaveRequestDto.getUsername());
         Channel channel = findByChannelId(channelId);
-        channel.updateChannel(channelSaveRequestDto, byName);
+        String imageUrl = null;
+        if(file != null) {
+            imageUrl = s3UploadUtil.saveProfileImage(file, memberId);
+        }
+        channel.updateChannel(channelSaveRequestDto, byName, imageUrl);
 
-        String imageUrl = s3UploadUtil.saveFile(file, LocalDateTime.now(), memberId);
-
-
+        String updated = rssUtil.updateRssFeed(member.getRssFeed(), channelSaveRequestDto.getChannelTitle(), "Link",
+                channelSaveRequestDto.getUsername(), channelSaveRequestDto.getChannelDescription(), subCategory,
+                member.getEmail(), imageUrl);
+        String result = s3UploadUtil.uploadRssFeed(member.getUsername(), updated);
+        log.info("feed url = {}", result);
     }
 }

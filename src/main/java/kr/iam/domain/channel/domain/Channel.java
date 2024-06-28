@@ -47,7 +47,10 @@ public class Channel extends BaseTimeEntity {
     @OneToMany(mappedBy = "channel")
     private List<Advertisement> advertisementList = new ArrayList<>();
 
-    public void updateChannel(ChannelSaveRequestDto channelSaveRequestDto, Category category) {
+    public void updateChannel(ChannelSaveRequestDto channelSaveRequestDto, Category category, String imageUrl) {
+        if(imageUrl != null) {
+            this.image = imageUrl;
+        }
         this.title = channelSaveRequestDto.getChannelTitle();
         this.description = channelSaveRequestDto.getChannelDescription();
         this.category = category;

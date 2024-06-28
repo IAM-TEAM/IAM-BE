@@ -24,7 +24,7 @@ public class ChannelController {
     private final ChannelService channelService;
     private final ObjectMapper objectMapper;
 
-    @PostMapping
+    @PatchMapping
     public ResponseEntity<String> createChannelInfo(@RequestPart("image") MultipartFile file,
                                                     @RequestPart("ChannelSaveRequestDto") String ChannelSaveRequestDtoString,
                                                     HttpServletRequest request)
