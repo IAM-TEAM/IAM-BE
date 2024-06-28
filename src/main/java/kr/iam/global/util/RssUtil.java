@@ -50,6 +50,13 @@ public class RssUtil {
             feed.setLink(newLink);
             feed.setDescription(newDescription);
 
+            // 추가: SyndImage 설정
+            SyndImage image = new SyndImageImpl();
+            image.setTitle(newTitle);
+            image.setUrl(imageUrl);
+            image.setLink(newLink);
+            feed.setImage(image);
+
             List<Module> modules = feed.getModules();
             DCModule dcModule = null;
             FeedInformation itunesInfo = null;
@@ -129,6 +136,13 @@ public class RssUtil {
             feed.setCopyright("");
             feed.setPublishedDate(now);
             feed.setGenerator("");
+
+            // 추가: SyndImage 설정
+            SyndImage image = new SyndImageImpl();
+            image.setTitle("");
+            image.setUrl("");
+            image.setLink("");
+            feed.setImage(image);
 
             List<Module> feedModules = new ArrayList<>();
 
