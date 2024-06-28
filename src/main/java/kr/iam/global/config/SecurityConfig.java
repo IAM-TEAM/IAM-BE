@@ -93,6 +93,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
+                        .requestMatchers("/iam-api/**").permitAll()
                         //테스트 용으로 허용
 //                        .requestMatchers("/episode/**").permitAll()
 //                        .requestMatchers("/rssfeed").permitAll()

@@ -17,6 +17,14 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+    @Transactional
+    public Member updateMember(Long memberId, String username) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+        member.setName(username);
+        return member;
+    }
+
     public String getRssFeedUrl(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));

@@ -23,14 +23,30 @@ public class S3UploadUtil {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public void uploadRssFeed(String keyName, String rssFeedXml) {
-        InputStream stream = new ByteArrayInputStream(rssFeedXml.getBytes());
+    public String uploadRssFeed(String keyName, String rssFeedXml) {
+        String modifiedKeyName = keyName + "-rss";
+        InputStream stream = new ByteArrayInputStream(rssFeedXml.getBytes(StandardCharsets.UTF_8));
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType("application/rss+xml");
-        metadata.addUserMetadata("title", "RSS Feed");
+        metadata.setContentType("application/rss+xml; charset=UTF-8");
         metadata.setContentEncoding("UTF-8");
 
-        amazonS3.putObject(new PutObjectRequest(bucket, keyName, stream, metadata));
+        metadata.setContentLength(rssFeedXml.getBytes(StandardCharsets.UTF_8).length);
+
+        amazonS3.putObject(new PutObjectRequest(bucket, modifiedKeyName, stream, metadata));
+        return amazonS3.getUrl(bucket, modifiedKeyName).toString();
+    }
+
+    public String saveProfileImage(MultipartFile multipartFile, Long memberId) throws IOException {
+        String extension = extractExtension(multipartFile);
+        ObjectMetadata metadata = new ObjectMetadata();
+        String originalFilename = multipartFile.getOriginalFilename();
+        String type = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        metadata.setContentLength(multipartFile.getSize());
+        metadata.setContentType(multipartFile.getContentType());
+        String key = "Member Profile" + memberId + extension;
+        amazonS3.putObject(bucket, key, multipartFile.getInputStream(), metadata);
+        log.info("{}타입 {} 업로드 완료", multipartFile.getContentType(), key);
+        return amazonS3.getUrl(bucket, key).toString();
     }
 
     public String saveFile(MultipartFile multipartFile, LocalDateTime uploadTime, Long memberId) throws IOException {

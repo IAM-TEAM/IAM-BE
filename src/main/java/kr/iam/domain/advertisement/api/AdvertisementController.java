@@ -2,6 +2,7 @@ package kr.iam.domain.advertisement.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.advertisement.application.AdvertisementService;
 import kr.iam.domain.advertisement.dto.AdvertisementDto;
@@ -24,6 +25,7 @@ public class AdvertisementController {
     private final AdvertisementService advertisementService;
     private final ObjectMapper objectMapper;
 
+    @Operation(summary = "광고 생성", description = "광고(관리자 용 default channel 1) 생성 + file(이미지)")
     @PostMapping
     public ResponseEntity<String> enrollAdvertisement(@RequestPart String enrollAdvertisementDto,
                                                       @RequestPart(required = false) MultipartFile file,
