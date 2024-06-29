@@ -50,6 +50,13 @@ public class RssUtil {
             feed.setLink(newLink);
             feed.setDescription(newDescription);
 
+            // 추가: SyndImage 설정
+            SyndImage image = new SyndImageImpl();
+            image.setTitle(newTitle);
+            image.setUrl(imageUrl);
+            image.setLink(newLink);
+            feed.setImage(image);
+
             List<Module> modules = feed.getModules();
             DCModule dcModule = null;
             FeedInformation itunesInfo = null;
@@ -129,6 +136,13 @@ public class RssUtil {
             feed.setCopyright("");
             feed.setPublishedDate(now);
             feed.setGenerator("");
+
+            // 추가: SyndImage 설정
+            SyndImage image = new SyndImageImpl();
+            image.setTitle("");
+            image.setUrl("");
+            image.setLink("");
+            feed.setImage(image);
 
             List<Module> feedModules = new ArrayList<>();
 
@@ -233,21 +247,26 @@ public class RssUtil {
 //        reader.close();  // XML Reader 닫기
     }
 
-    public List<String> getCategories(String filePath) {
+    public List<String> getCategories(String rssFeedUrl) {
         List<String> categories = new ArrayList<>();
         try {
-            File file = new File(filePath);
-            SAXBuilder saxBuilder = new SAXBuilder();
-            Document document = saxBuilder.build(file);
+            URL url = new URL(rssFeedUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
 
-            Element rootElement = document.getRootElement();
-            Element channel = rootElement.getChild("channel");
+            try (InputStream inputStream = connection.getInputStream()) {
+                SAXBuilder saxBuilder = new SAXBuilder();
+                Document document = saxBuilder.build(inputStream);
 
-            List<Element> categoryElements = channel.getChildren("category", rootElement.getNamespace("itunes"));
+                Element rootElement = document.getRootElement();
+                Element channel = rootElement.getChild("channel");
 
-            for (Element categoryElement : categoryElements) {
-                String category = categoryElement.getAttributeValue("text");
-                categories.add(category);
+                List<Element> categoryElements = channel.getChildren("category", rootElement.getNamespace("itunes"));
+
+                for (Element categoryElement : categoryElements) {
+                    String category = categoryElement.getAttributeValue("text");
+                    categories.add(category);
+                }
             }
 
         } catch (Exception e) {
@@ -255,6 +274,28 @@ public class RssUtil {
         }
         return categories;
     }
+//    public List<String> getCategories(String filePath) {
+//        List<String> categories = new ArrayList<>();
+//        try {
+//            File file = new File(filePath);
+//            SAXBuilder saxBuilder = new SAXBuilder();
+//            Document document = saxBuilder.build(file);
+//
+//            Element rootElement = document.getRootElement();
+//            Element channel = rootElement.getChild("channel");
+//
+//            List<Element> categoryElements = channel.getChildren("category", rootElement.getNamespace("itunes"));
+//
+//            for (Element categoryElement : categoryElements) {
+//                String category = categoryElement.getAttributeValue("text");
+//                categories.add(category);
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return categories;
+//    }
 
     public void deleteEpisode(String feedUrl, String episodeLink) throws IOException, FeedException {
         // 기존 피드 파일을 읽기
