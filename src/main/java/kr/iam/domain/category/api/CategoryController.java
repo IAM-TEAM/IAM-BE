@@ -53,10 +53,10 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategoryResponseDtoList(name));
     }
 
-    @Operation(summary = "Member 카테고리 추출",
-            description = "Member의 채널 카테고리 추출(RSS Feed에서 값을 꺼내올 지 아니면 ChannelId를 통해서 가져올 지 고민중")
-    @GetMapping("/member")
-    public ResponseEntity<CategoryMemberResponseDto> getCategoryByMemberId(HttpServletRequest request) {
-        return ResponseEntity.ok(categoryService.getMemberCategoryList(request));
-    }
+//    @Operation(summary = "Member 카테고리 추출",
+//            description = "Member의 채널 카테고리 추출(RSS Feed에서 값을 꺼내올 지 아니면 ChannelId를 통해서 가져올 지 고민중")
+//    @GetMapping("/member")
+//    public ResponseEntity<CategoryMemberResponseDto> getCategoryByMemberId(HttpServletRequest request) {
+//        return ResponseEntity.ok(categoryService.getMemberCategoryList(request));
+//    }
 }

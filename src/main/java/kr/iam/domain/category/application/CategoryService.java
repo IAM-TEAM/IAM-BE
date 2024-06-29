@@ -96,13 +96,16 @@ public class CategoryService {
      * 유저 선택 카테고리 추출 -> 해당 서비스는 유저 정보Dto 서비스로 이전될 예정
      * 아마 RssFeed에서 유저의 모든 정보를 꺼내오고 메인 카테고리 기능만 남지 않을까 싶음
      */
-    public CategoryMemberResponseDto getMemberCategoryList(HttpServletRequest request) {
-        Long memberId = Long.valueOf(cookieUtil.getCookieValue("memberId", request));
-        String rssFeedUrl = memberService.getRssFeedUrl(memberId);
-        List<String> categories = rssUtil.getCategories("updated_feed.xml");
+    public CategoryMemberResponseDto getMemberCategoryList(String rssFeedUrl) {
+        List<String> categories = rssUtil.getCategories(rssFeedUrl);
         String name = categories.get(0);
         DetailCategory byName = detailCategoryService.findByName(name);
         Category category = byName.getCategory();
         return CategoryMemberResponseDto.builder().mainName(category.getName()).subName(name).build();
+    }
+
+    public String getMemberCategory(String rssFeedUrl) {
+        List<String> categories = rssUtil.getCategories(rssFeedUrl);
+        return categories.get(0);
     }
 }

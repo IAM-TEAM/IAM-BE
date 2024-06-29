@@ -56,6 +56,9 @@ public class S3UploadUtil {
         String type = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
         metadata.setContentLength(multipartFile.getSize());
         metadata.setContentType(multipartFile.getContentType());
+        if(extension.equals("mov")) {
+            extension = "mp4";
+        }
         String key = "Member" + memberId + "_" + type + "_" + uploadTime + extension;
         amazonS3.putObject(bucket, key, multipartFile.getInputStream(), metadata);
         log.info("{}타입 {} 업로드 완료", multipartFile.getContentType(), key);

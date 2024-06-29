@@ -3,6 +3,7 @@ package kr.iam.domain.channel.application;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.category.application.CategoryService;
 import kr.iam.domain.category.domain.Category;
+import kr.iam.domain.category.dto.CategoryDto;
 import kr.iam.domain.channel.dao.ChannelRepository;
 import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.channel.dto.ChannelDto;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static kr.iam.domain.category.dto.CategoryDto.*;
 import static kr.iam.domain.channel.dto.ChannelDto.*;
 
 @Slf4j
@@ -57,6 +59,13 @@ public class ChannelService {
         return channelRepository.save(channel);
     }
 
+    /**
+     * Channel, MemberInfo 저장 서비스
+     * @param file
+     * @param channelSaveRequestDto
+     * @param request
+     * @throws IOException
+     */
     @Transactional
     public void updateInfo(MultipartFile file, ChannelSaveRequestDto channelSaveRequestDto,
                          HttpServletRequest request) throws IOException {
@@ -78,5 +87,12 @@ public class ChannelService {
                 member.getEmail(), imageUrl);
         String result = s3UploadUtil.uploadRssFeed(member.getUsername(), updated);
         log.info("feed url = {}", result);
+    }
+
+    public ChannelResponseDto getInfo(HttpServletRequest request) {
+        Long channelId = Long.parseLong(cookieUtil.getCookieValue("channelId", request));
+        Channel channel = channelRepository.findAllInfoByChannelId(channelId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND));
+        return ChannelResponseDto.from(channel, categoryService.getMemberCategory(channel.getMember().getRssFeed()));
     }
 }
