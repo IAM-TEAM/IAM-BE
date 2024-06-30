@@ -150,14 +150,18 @@ class EpisodeServiceTest {
         //given
         Long episodeId = 1L;
         Long memberId = 1L;
+        String feedUrl = "test";
         Episode episode = new Episode();
+        Member member = Member.builder().id(memberId).rssFeed(feedUrl).build();
+        when(memberService.findById(memberId)).thenReturn(member);
+        when(cookieUtil.getCookieValue("memberId", request)).thenReturn(String.valueOf(memberId));
         when(episodeRepository.findById(episodeId))
                 .thenReturn(Optional.of(episode));
         when(s3UploadUtil.saveFile(null, LocalDateTime.now(), memberId))
                 .thenReturn(null);
 
         //when
-        episodeService.delete(episodeId);
+        episodeService.delete(episodeId, request);
 
         //then
         verify(episodeRepository, times(1)).delete(any(Episode.class));

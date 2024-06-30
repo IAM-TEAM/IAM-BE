@@ -91,8 +91,8 @@ public class EpisodeController {
      */
     @Operation(summary = "에피소드 삭제", description = "PathVariable로 episodeId를 받아서 해당 에피소드 삭제 + RSS Feed도 같이 삭제")
     @DeleteMapping("/{episodeId}")
-    public ResponseEntity<String> deleteEpisode(@PathVariable("episodeId") Long episodeId) {
-        episodeService.delete(episodeId);
+    public ResponseEntity<String> deleteEpisode(@PathVariable("episodeId") Long episodeId, HttpServletRequest request) {
+        episodeService.delete(episodeId, request);
         return ResponseEntity.ok("ok");
     }
 
