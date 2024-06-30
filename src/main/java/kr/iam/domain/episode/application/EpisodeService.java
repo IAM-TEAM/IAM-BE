@@ -75,12 +75,6 @@ public class EpisodeService {
             String imageUrl = s3UploadUtil.saveFile(image, uploadTime, memberId);
             String contentUrl = s3UploadUtil.saveFile(content, uploadTime, memberId);
 
-            //RSS 피드 수정
-            SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
-                    "https://test.test.iam/member0/episodeId.e1e2e23r", uploadTime,
-                    contentUrl, imageUrl, "audio/mpeg", member.getName());
-            rssUtil.addEpisode(member.getRssFeed(), newEpisode);
-
             //DB 업로드
             Episode episode = Episode.of(requestDto, channel, imageUrl, contentUrl, uploadTime);
             if (requestDto.getAdvertiseId() != null) {
@@ -89,6 +83,12 @@ public class EpisodeService {
                 episode.getEpisodeAdvertisementList().addAll(episodeAdvertisementList);
             }
             episodeRepository.save(episode);
+
+            //RSS 피드 수정
+            String link = makeEpisodeLink(memberId, episode.getId());
+            SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
+                    link, uploadTime, contentUrl, imageUrl, "audio/mpeg", member.getName());
+            rssUtil.addEpisode(member.getRssFeed(), newEpisode);
 
             return episode.getId();
         } catch (IOException e) {
@@ -129,6 +129,8 @@ public class EpisodeService {
 
     /**
      * 에피소드 삭제
+     * 링크는 아마 https://iam.domain/member + memberId/EpisodeId 요렇게 될듯?
+     * ex) https://iam.domain/member33/epsisode452
      * @param episodeId
      */
     @Transactional
@@ -164,5 +166,9 @@ public class EpisodeService {
                 })
                 .collect(Collectors.toList());
         return result;
+    }
+
+    private String makeEpisodeLink(Long memberId, Long episodeId) {
+        return "https://iam/member" + memberId + "/episodeId." + episodeId;
     }
 }
