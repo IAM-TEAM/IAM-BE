@@ -134,13 +134,16 @@ public class EpisodeService {
      * @param episodeId
      */
     @Transactional
-    public void delete(Long episodeId) {
+    public void delete(Long episodeId, HttpServletRequest request) {
+        Long memberId = Long.valueOf(cookieUtil.getCookieValue("memberId", request));
+        Member member = memberService.findById(memberId);
         Episode episode = episodeRepository.findById(episodeId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
         s3UploadUtil.deleteFile(episode.getImage());
         s3UploadUtil.deleteFile(episode.getContent());
+        String link = makeEpisodeLink(memberId, episodeId);
         try {
-            rssUtil.deleteEpisode("test", "test");
+            rssUtil.deleteEpisode(member.getRssFeed(), link);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (FeedException e) {
