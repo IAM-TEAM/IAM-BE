@@ -299,11 +299,8 @@ public class RssUtil {
 
     public void deleteEpisode(String feedUrl, String episodeLink) throws IOException, FeedException {
         // 기존 피드 파일을 읽기
-        String filePath = "updated_feed.xml";
-        episodeLink = "https://podcasters.spotify.com/pod/show/qnr6ued8ig8/episodes/test-e2j84o5";
-        File file = new File(filePath);
-        FileInputStream inputStream = new FileInputStream(file);
-        XmlReader reader = new XmlReader(inputStream);
+        URL url = new URL(feedUrl);
+        XmlReader reader = new XmlReader(url);
         SyndFeed feed = new SyndFeedInput().build(reader);
 
         // 삭제할 항목 찾기
@@ -317,13 +314,27 @@ public class RssUtil {
                 break;
             }
         }
-
-        // 파일에 변경된 피드를 덮어쓰기로 출력
-        FileWriter writer = new FileWriter(file);  // 기존 파일 경로를 사용하여 파일을 덮어쓰기
+        // 새로운 피드를 String으로 변환
+        StringWriter stringWriter = new StringWriter();
         SyndFeedOutput output = new SyndFeedOutput();
-        output.output(feed, writer);
-        writer.close();  // 리소스 정리
-        reader.close();  // XML Reader 닫기
+        output.output(feed, stringWriter);
+        String updatedFeed = stringWriter.toString();
+
+        // URL에 새로운 피드를 덮어쓰기
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Type", "application/rss+xml; charset=UTF-8");
+
+        OutputStream outputStream = connection.getOutputStream();
+        outputStream.write(updatedFeed.getBytes("UTF-8"));
+        outputStream.flush();
+        outputStream.close();
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new IOException("Failed to update feed: HTTP response code " + responseCode);
+        }
     }
 
     public SyndEntry createNewEpisode(String title, String description, String link, LocalDateTime pubDate,

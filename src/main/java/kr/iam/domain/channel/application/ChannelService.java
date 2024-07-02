@@ -89,6 +89,11 @@ public class ChannelService {
         log.info("feed url = {}", result);
     }
 
+    /**
+     * 유저 및 채널 정보 가져오기
+     * @param request
+     * @return
+     */
     public ChannelResponseDto getInfo(HttpServletRequest request) {
         Long channelId = Long.parseLong(cookieUtil.getCookieValue("channelId", request));
         Channel channel = channelRepository.findAllInfoByChannelId(channelId)
