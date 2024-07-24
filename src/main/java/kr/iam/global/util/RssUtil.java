@@ -135,7 +135,7 @@ public class RssUtil {
             feed.setLanguage("ko");
             feed.setCopyright("");
             feed.setPublishedDate(now);
-            feed.setGenerator("");
+            feed.setGenerator("IAM");
 
             // 추가: SyndImage 설정
             SyndImage image = new SyndImageImpl();
