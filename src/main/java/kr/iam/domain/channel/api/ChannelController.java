@@ -37,7 +37,7 @@ public class ChannelController {
         return ResponseEntity.ok("Updated Okay");
     }
 
-    @Operation(summary = "광고 생성", description = "광고(관리자 용 default channel 1) 생성 + file(이미지)")
+    //@Operation(summary = "광고 생성", description = "광고(관리자 용 default channel 1) 생성 + file(이미지)")
     @GetMapping
     public ResponseEntity<ChannelResponseDto> getChannelInfo(HttpServletRequest request) {
         return ResponseEntity.ok(channelService.getInfo(request));

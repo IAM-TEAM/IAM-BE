@@ -1,0 +1,55 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+
+  jackson:
+    time-zone: Asia/Seoul
+
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        one-indexed-parameters: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        #show_sql: true
+        format_sql: true
+        default_batch_fetch_size: 1000
+
+  jwt:
+    secret: ${JWT_KEY}
+
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET_NAME} # {버킷명}
+    credentials:
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRET_KEY}
+    region:
+      static: ${BUCKET_REGION}
+      auto: false
+    stack:
+      auto: false
+
+logging.level:
+  org.hibernate.SQL: debug
+#  org.hibernate.type: trace
+
+springdoc:
+  api-docs:
+    path: /iam-api/v3/api-docs
+  swagger-ui:
+    path: /iam-api/v3/swagger-ui.html
+
+---
+spring:
+  profiles:
+    active: local, prod
+    include: oauth

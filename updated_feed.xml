@@ -34,12 +34,27 @@
     <item>
       <title>6월27일</title>
       <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
-      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">이영찬</dc:creator>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1" />
       <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <description>테스팅1</description>
+      <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member33_mov_2024-06-28T23%3A16%3A01.979221.mov" length="1781818" type="audio/mpeg" />
+      <pubDate>Fri, 28 Jun 2024 14:16:01 GMT</pubDate>
+      <guid>https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <dc:date>2024-06-28T14:16:01Z</dc:date>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>no</itunes:explicit>
+      <itunes:image href="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member33_png_2024-06-28T23%3A16%3A01.979221.png" />
+      <itunes:keywords />
+      <itunes:summary>description</itunes:summary>
+    </item>
+    <item>
+      <title>6월27일</title>
+      <link>https://test.test.iam/member0/episodeId.e1e2e23r</link>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1">이영찬</dc:creator>
       <description>테스팅1</description>
       <enclosure url="https://iam-test3.s3.ap-northeast-2.amazonaws.com/Member4_mov_2024-06-27T13%3A39%3A59.635653.mov" length="1781818" type="audio/mpeg" />
       <pubDate>Thu, 27 Jun 2024 04:39:59 GMT</pubDate>
-      <guid>https://test.test.iam/member0/episodeId.e1e2e23r</guid>
+      <guid isPermaLink="false">https://test.test.iam/member0/episodeId.e1e2e23r</guid>
       <dc:date>2024-06-27T04:39:59Z</dc:date>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>no</itunes:explicit>
