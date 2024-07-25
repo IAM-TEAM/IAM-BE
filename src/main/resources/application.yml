@@ -1,5 +1,5 @@
 server:
-  port: 8443
+  port: 8081
   ssl:
     key-store-type: PKCS12
     key-store: classpath:keystore.p12
