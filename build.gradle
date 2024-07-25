@@ -10,7 +10,7 @@ jib {
 		image = 'openjdk:17.0.2-slim'
 	}
 	to {
-		image = 'leeyoungchan/gateway-service'
+		image = 'leeyoungchan/iam-back-service'
 		tags = ['latest']
 	}
 	container {
