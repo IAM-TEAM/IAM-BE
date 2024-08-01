@@ -104,8 +104,8 @@ public class CategoryService {
         return CategoryMemberResponseDto.builder().mainName(category.getName()).subName(name).build();
     }
 
-    public String getMemberCategory(String rssFeedUrl) {
+    public List<String> getMemberCategory(String rssFeedUrl) {
         List<String> categories = rssUtil.getCategories(rssFeedUrl);
-        return categories.get(0);
+        return categories;
     }
 }

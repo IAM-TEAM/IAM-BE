@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -181,12 +182,11 @@ class ChannelServiceTest {
         DetailCategory detailCategory = DetailCategory.builder().name("testDetailCategory2").build();
         Category category = Category.builder().name("testCategory2").detailCategories(List.of(detailCategory)).build();
         Member member = Member.builder().id(1L).name("testUsername2").rssFeed(rssFeedUrl).build();
-        Channel channel = Channel.builder().id(channelId).image("testImage2").title("testTitle2").description("testDescription2")
-                .category(category).age(false)
+        Channel channel = Channel.builder().id(channelId).image("testImage2").title("testTitle2").description("testDescription2").age(false)
                 .member(member).build();
         when(cookieUtil.getCookieValue("channelId", request)).thenReturn(String.valueOf(channelId));
         when(channelRepository.findAllInfoByChannelId(channelId)).thenReturn(Optional.of(channel));
-        when(categoryService.getMemberCategory(rssFeedUrl)).thenReturn(detailCategory.getName());
+        when(categoryService.getMemberCategory(rssFeedUrl)).thenReturn(Collections.singletonList(detailCategory.getName()));
 
         //when
         ChannelResponseDto info = channelService.getInfo(request);
@@ -194,10 +194,10 @@ class ChannelServiceTest {
         //then
         assertThat(info).isNotNull();
         assertThat(info.getUsername()).isEqualTo(member.getName());
-        assertThat(info.getChannelCategory()).isEqualTo(category.getName());
+        assertThat(info.getChannelCategories()).isEqualTo(category.getName());
         assertThat(info.getChannelTitle()).isEqualTo("testTitle2");
         assertThat(info.getChannelDescription()).isEqualTo("testDescription2");
-        assertThat(info.getChannelDetailCategory()).isEqualTo(detailCategory.getName());
+        assertThat(info.getChannelDetailCategories()).isEqualTo(detailCategory.getName());
         assertThat(info.getAgeLimit()).isFalse();
     }
 }

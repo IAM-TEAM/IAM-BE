@@ -3,12 +3,13 @@ package kr.iam.domain.channel.application;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.category.application.CategoryService;
 import kr.iam.domain.category.domain.Category;
-import kr.iam.domain.category.dto.CategoryDto;
 import kr.iam.domain.channel.dao.ChannelRepository;
 import kr.iam.domain.channel.domain.Channel;
-import kr.iam.domain.channel.dto.ChannelDto;
+import kr.iam.domain.detail_category.domain.DetailCategory;
 import kr.iam.domain.member.application.MemberService;
 import kr.iam.domain.member.domain.Member;
+import kr.iam.domain.using_category.application.UsingCategoryService;
+import kr.iam.domain.using_category.domain.UsingCategory;
 import kr.iam.global.exception.BusinessLogicException;
 import kr.iam.global.exception.code.ExceptionCode;
 import kr.iam.global.util.CookieUtil;
@@ -21,11 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static kr.iam.domain.category.dto.CategoryDto.*;
-import static kr.iam.domain.channel.dto.ChannelDto.*;
+import static kr.iam.domain.channel.dto.ChannelDto.ChannelResponseDto;
+import static kr.iam.domain.channel.dto.ChannelDto.ChannelSaveRequestDto;
 
 @Slf4j
 @Service
@@ -36,6 +38,7 @@ public class ChannelService {
     private final ChannelRepository channelRepository;
     private final MemberService memberService;
     private final CategoryService categoryService;
+    private final UsingCategoryService usingCategoryService;
     private final S3UploadUtil s3UploadUtil;
     private final RssUtil rssUtil;
     private final CookieUtil cookieUtil;
@@ -71,19 +74,27 @@ public class ChannelService {
                          HttpServletRequest request) throws IOException {
         Long memberId = Long.parseLong(cookieUtil.getCookieValue("memberId", request));
         Long channelId = Long.parseLong(cookieUtil.getCookieValue("channelId", request));
-        String mainCategory = channelSaveRequestDto.getChannelCategory();
-        String subCategory = channelSaveRequestDto.getChannelDetailCategory();
-        Category byName = categoryService.findByName(mainCategory);
-        Member member = memberService.updateMember(memberId, channelSaveRequestDto.getUsername());
         Channel channel = findByChannelId(channelId);
-        String imageUrl = null;
+        List<String> mainCategories = channelSaveRequestDto.getChannelCategories();
+        List<String> subCategories = channelSaveRequestDto.getChannelDetailCategories();
+        List<UsingCategory> usingCategories = new ArrayList<>();
+        // 기존 UsingCategory 삭제
+        usingCategoryService.deleteAllByChannel(channel);
+        mainCategories.forEach(categoryName -> {
+            Category category = categoryService.findByName(categoryName);
+            usingCategories.add(UsingCategory.createUsingCategory(channel, category));
+//            categories.add(category);
+        });
+        Member member = memberService.updateMember(memberId, channelSaveRequestDto.getUsername());
+
+        String imageUrl = channel.getImage();
         if(file != null) {
             imageUrl = s3UploadUtil.saveProfileImage(file, memberId);
         }
-        channel.updateChannel(channelSaveRequestDto, byName, imageUrl);
+        channel.updateChannel(channelSaveRequestDto, usingCategories, imageUrl);
 
         String updated = rssUtil.updateRssFeed(member.getRssFeed(), channelSaveRequestDto.getChannelTitle(), "Link",
-                channelSaveRequestDto.getUsername(), channelSaveRequestDto.getChannelDescription(), subCategory,
+                channelSaveRequestDto.getUsername(), channelSaveRequestDto.getChannelDescription(), subCategories,
                 member.getEmail(), imageUrl);
         String result = s3UploadUtil.uploadRssFeed(member.getUsername(), updated);
         log.info("feed url = {}", result);
