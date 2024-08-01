@@ -21,6 +21,7 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.springframework.stereotype.Component;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -37,7 +38,7 @@ import java.util.*;
 public class RssUtil {
 
     public String updateRssFeed(String existingFeedUrl, String newTitle, String newLink, String newAuthor,
-                                String newDescription, String category, String email, String imageUrl) {
+                                String newDescription, List<String> categories, String email, String imageUrl) {
         try {
             Date now = convertToUtcDate(LocalDateTime.now());
             // 기존 피드 읽기
@@ -91,7 +92,9 @@ public class RssUtil {
             itunesInfo.setType("episodic");
 
             List<Category> itunesCategories = new ArrayList<>();
-            itunesCategories.add(new Category(category));
+            for (String category : categories) {
+                itunesCategories.add(new Category(category));
+            }
             itunesInfo.setCategories(itunesCategories);
 
             feed.setModules(modules);

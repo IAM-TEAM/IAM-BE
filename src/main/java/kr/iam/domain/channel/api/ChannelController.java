@@ -27,7 +27,7 @@ public class ChannelController {
 
     @Operation(summary = "내 정보 수정 및 입력", description = "내 정보 수정 및 입력 모두 수행 아마도?")
     @PatchMapping
-    public ResponseEntity<String> createChannelInfo(@RequestPart("image") MultipartFile file,
+    public ResponseEntity<String> createChannelInfo(@RequestPart(value = "image", required = false) MultipartFile file,
                                                     @RequestPart("ChannelSaveRequestDto") String ChannelSaveRequestDtoString,
                                                     HttpServletRequest request)
             throws IOException {
