@@ -48,11 +48,13 @@ public class ChannelDto {
         private List<String> channelCategories;
         private List<String> channelDetailCategories;
         private Boolean ageLimit;
+        private String rssFeedUrl;
 
         @Builder
         public ChannelResponseDto(String username, String channelImage,
                                   String channelTitle, String channelDescription,
-                                  List<String> channelCategories, List<String> channelDetailCategories, Boolean ageLimit) {
+                                  List<String> channelCategories, List<String> channelDetailCategories,
+                                  Boolean ageLimit, String rssFeedUrl) {
             this.username = username;
             this.channelImage = channelImage;
             this.channelTitle = channelTitle;
@@ -60,6 +62,7 @@ public class ChannelDto {
             this.channelCategories = channelCategories;
             this.channelDetailCategories = channelDetailCategories;
             this.ageLimit = ageLimit;
+            this.rssFeedUrl = rssFeedUrl;
         }
 
         public static ChannelResponseDto from(Channel channel, List<String> detailCategories) {
@@ -76,6 +79,7 @@ public class ChannelDto {
                     .channelCategories(categoryNames)
                     .channelDetailCategories(detailCategories)
                     .ageLimit(channel.getAge())
+                    .rssFeedUrl(channel.getMember().getRssFeed())
                     .build();
         }
     }

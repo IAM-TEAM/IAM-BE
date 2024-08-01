@@ -10,6 +10,6 @@ public interface ChannelRepository extends JpaRepository<Channel, Long> {
 
     boolean existsById(Long channelId);
 
-    @Query("select c from Channel c join fetch c.member join fetch c.usingCategories uc join fetch uc.category where c.id = :channelId")
+    @Query("select c from Channel c join fetch c.usingCategories uc join fetch uc.category where c.id = :channelId")
     Optional<Channel> findAllInfoByChannelId(Long channelId);
 }
