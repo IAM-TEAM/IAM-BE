@@ -3,13 +3,14 @@ package kr.iam.domain.advertisement.application;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.advertisement.dao.AdvertisementRepository;
 import kr.iam.domain.advertisement.domain.Advertisement;
-import kr.iam.domain.advertisement.dto.AdvertisementDto;
 import kr.iam.global.exception.BusinessLogicException;
 import kr.iam.global.exception.code.ExceptionCode;
 import kr.iam.global.util.CookieUtil;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,6 +49,12 @@ public class AdvertisementService {
             s = s3UploadUtil.saveFile(file, LocalDateTime.now(), memberId);
         }
         Advertisement advertisement = Advertisement.toAdvertisement(enrollAdvertisementDto, s);
+        advertisementRepository.save(advertisement);
         return advertisement.getId();
+    }
+
+    public AdvertisementResDto getAdvertisements(Pageable pageable) {
+        Page<AdvertisementInfo> advertisementInfos = advertisementRepository.advertisementList(pageable);
+        return AdvertisementResDto.from(advertisementInfos);
     }
 }

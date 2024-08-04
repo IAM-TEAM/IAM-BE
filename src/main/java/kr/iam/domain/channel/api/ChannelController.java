@@ -1,11 +1,9 @@
 package kr.iam.domain.channel.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.channel.application.ChannelService;
-import kr.iam.domain.channel.dto.ChannelDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import static kr.iam.domain.channel.dto.ChannelDto.*;
+import static kr.iam.domain.channel.dto.ChannelDto.ChannelResponseDto;
+import static kr.iam.domain.channel.dto.ChannelDto.ChannelSaveRequestDto;
 
 @Slf4j
 @RestController
@@ -40,6 +39,7 @@ public class ChannelController {
     //@Operation(summary = "광고 생성", description = "광고(관리자 용 default channel 1) 생성 + file(이미지)")
     @GetMapping
     public ResponseEntity<ChannelResponseDto> getChannelInfo(HttpServletRequest request) {
+        log.info("getChannelInfo");
         return ResponseEntity.ok(channelService.getInfo(request));
     }
 }
