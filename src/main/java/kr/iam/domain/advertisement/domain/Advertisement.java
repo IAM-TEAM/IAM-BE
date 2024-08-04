@@ -2,16 +2,18 @@ package kr.iam.domain.advertisement.domain;
 
 import jakarta.persistence.*;
 import kr.iam.domain.BaseTimeEntity;
-import kr.iam.domain.advertisement.dto.AdvertisementDto;
 import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static kr.iam.domain.advertisement.dto.AdvertisementDto.*;
+import static kr.iam.domain.advertisement.dto.AdvertisementDto.EnrollAdvertisementDto;
 
 @Entity
 @Getter
@@ -25,8 +27,8 @@ public class Advertisement extends BaseTimeEntity {
     private long id;
     private String title;
     private String url;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String requirement;
     private Double price;
     private String content;
