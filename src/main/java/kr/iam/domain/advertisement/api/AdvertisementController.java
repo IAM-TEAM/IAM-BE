@@ -18,7 +18,7 @@ import static kr.iam.domain.advertisement.dto.AdvertisementDto.EnrollAdvertiseme
 
 @Slf4j
 @RestController
-@RequestMapping("/advertisement")
+@RequestMapping("/api/advertisement")
 @RequiredArgsConstructor
 public class AdvertisementController {
 
@@ -31,15 +31,19 @@ public class AdvertisementController {
                                                           EnrollAdvertisementDto enrollAdvertisementDto,
                                                       @RequestPart(required = false) MultipartFile file,
                                                       HttpServletRequest request) throws IOException {
-//        EnrollAdvertisementDto enrollAdvertisementDtoContent =
-//                objectMapper.readValue(enrollAdvertisementDto, EnrollAdvertisementDto.class);
 
         Long saveId = advertisementService.enrollAdvertisement(file, enrollAdvertisementDto, request);
         return ResponseEntity.ok(saveId + " created");
     }
 
+    @Operation(summary = "광고 조회", description = "모든 광고 조회 가능(필터링은 일단 제외)")
     @GetMapping
     public ResponseEntity<AdvertisementResDto> getAdvertisementInfos(Pageable pageable) {
         return ResponseEntity.ok(advertisementService.getAdvertisements(pageable));
     }
+
+//    @PostMapping
+//    public ResponseEntity<String> chooseAdvertisement() {
+//
+//    }
 }

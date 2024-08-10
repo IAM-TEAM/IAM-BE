@@ -1,17 +1,14 @@
 package kr.iam.domain.category.api;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.category.application.CategoryService;
-import kr.iam.domain.category.dto.CategoryDto;
-import kr.iam.domain.category.dto.CategoryMemberDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static kr.iam.domain.category.dto.CategoryDto.*;
-import static kr.iam.domain.category.dto.CategoryMemberDto.*;
+import static kr.iam.domain.category.dto.CategoryDto.CategoryResponseDtoList;
+import static kr.iam.domain.category.dto.CategoryDto.CategorySaveRequestDto;
 
 @RestController
 @RequestMapping("/category")

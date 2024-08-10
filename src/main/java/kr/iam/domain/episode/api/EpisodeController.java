@@ -29,7 +29,7 @@ import static kr.iam.domain.episode.dto.EpisodeDto.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/episode")
+@RequestMapping("/api/episode")
 @RequiredArgsConstructor
 public class EpisodeController {
 

@@ -1,12 +1,7 @@
 package kr.iam.domain.category.application;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.category.dao.CategoryRepository;
 import kr.iam.domain.category.domain.Category;
-import kr.iam.domain.category.dto.CategoryDto;
-import kr.iam.domain.category.dto.CategoryMemberDto;
-import kr.iam.domain.channel.application.ChannelService;
-import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.detail_category.application.DetailCategoryService;
 import kr.iam.domain.detail_category.domain.DetailCategory;
 import kr.iam.domain.member.application.MemberService;
@@ -19,12 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static kr.iam.domain.category.dto.CategoryDto.*;
-import static kr.iam.domain.category.dto.CategoryMemberDto.*;
+import static kr.iam.domain.category.dto.CategoryMemberDto.CategoryMemberResponseDto;
 
 @Service
 @Slf4j
