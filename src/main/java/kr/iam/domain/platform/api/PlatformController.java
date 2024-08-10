@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/platform")
+@RequestMapping("/api/platform")
 @RequiredArgsConstructor
 public class PlatformController {
 

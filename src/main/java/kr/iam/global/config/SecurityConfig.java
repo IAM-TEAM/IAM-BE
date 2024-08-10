@@ -52,6 +52,7 @@ public class SecurityConfig {
 
                         configuration.setAllowedOrigins(Collections.singletonList("https://oguogu.store"));
                         configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                        configuration.setAllowedOrigins(Collections.singletonList("http://oguogu.store"));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));

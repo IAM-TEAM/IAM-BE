@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import static kr.iam.domain.category.dto.CategoryDto.*;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/api/category")
 @RequiredArgsConstructor
 @Slf4j
 public class DetailCategoryController {

@@ -18,7 +18,7 @@ import static kr.iam.domain.advertisement.dto.AdvertisementDto.EnrollAdvertiseme
 
 @Slf4j
 @RestController
-@RequestMapping("/advertisement")
+@RequestMapping("/api/advertisement")
 @RequiredArgsConstructor
 public class AdvertisementController {
 

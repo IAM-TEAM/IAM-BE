@@ -17,7 +17,7 @@ import static kr.iam.domain.channel.dto.ChannelDto.ChannelSaveRequestDto;
 
 @Slf4j
 @RestController
-@RequestMapping("/channel")
+@RequestMapping("/api/channel")
 @RequiredArgsConstructor
 public class ChannelController {
 
