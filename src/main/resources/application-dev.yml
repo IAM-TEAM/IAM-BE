@@ -1,5 +1,10 @@
 server:
-  port: 8081
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: ${KEY_STORE_PATH}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-alias: ${KEY_ALIAS}
 
 spring:
   datasource:
