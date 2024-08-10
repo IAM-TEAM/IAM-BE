@@ -8,3 +8,8 @@ spring:
             client-secret: ${CLIENT_SECRET}
             redirect-uri : ${REDIRECT_URL}
             scope: profile, email
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
