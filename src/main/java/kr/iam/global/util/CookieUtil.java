@@ -20,9 +20,10 @@ public class CookieUtil {
         Cookie cookie = new Cookie(cookieName, cookieValue);
         //쿠키 속성 설정
         cookie.setHttpOnly(true);
-        //cookie.setSecure(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setMaxAge(1000 * 60 * 60 * 24 * 7);
+        cookie.setAttribute("SameSite", "None");
         response.addCookie(cookie);
     }
 
