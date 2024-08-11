@@ -107,6 +107,7 @@ public class ChannelService {
      */
     public ChannelResponseDto getInfo(HttpServletRequest request) {
         Long channelId = Long.parseLong(cookieUtil.getCookieValue("channelId", request));
+        log.info("channelId = {}", channelId);
         Channel channel = channelRepository.findAllInfoByChannelId(channelId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND));
         return ChannelResponseDto.from(channel, categoryService.getMemberCategory(channel.getMember().getRssFeed()));
