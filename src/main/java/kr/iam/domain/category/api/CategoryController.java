@@ -11,7 +11,7 @@ import static kr.iam.domain.category.dto.CategoryDto.CategoryResponseDtoList;
 import static kr.iam.domain.category.dto.CategoryDto.CategorySaveRequestDto;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping("/api/category")
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryController {
