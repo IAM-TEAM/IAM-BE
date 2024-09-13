@@ -328,10 +328,10 @@ public class RssUtil {
         itunesInfo.setSummary("description");
         entry.getModules().add(itunesInfo);
 
-        Element guid = new Element("guid");
-        guid.setText(link);
-        guid.setAttribute("isPermaLink", "false");
-        entry.getForeignMarkup().add(guid);
+//        Element guid = new Element("guid");
+//        guid.setText(link);
+//        guid.setAttribute("isPermaLink", "false");
+//        entry.getForeignMarkup().add(guid);
 
         Element pubDateElement = new Element("pubDate");
         pubDateElement.setText(formatPubDate(date));
