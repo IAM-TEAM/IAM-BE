@@ -47,13 +47,15 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         //추후 작성
         //리소스 서버에서 발급 받은 정보로 사용자를 특정할 아이디값을 만듬
-        String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
+        String username = oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
         Member existData = memberRepository.findByUsername(username);
         MemberDTO userDTO;
         if(existData == null){
             Channel save = channelService.save();
             String rssFeed = rssUtil.createRssFeed();
             String saveRss = s3UploadUtil.uploadRssFeed(username, rssFeed);
+            String updatedFeed = rssUtil.addAtomNamespaceAndFormat(rssFeed, saveRss);
+            s3UploadUtil.uploadRssFeed(username, updatedFeed);
             Member userEntity = Member.builder()
                     .username(username)
                     .name(oAuth2Response.getName())

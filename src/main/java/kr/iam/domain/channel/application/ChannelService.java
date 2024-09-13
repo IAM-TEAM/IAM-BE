@@ -86,15 +86,14 @@ public class ChannelService {
 //            categories.add(category);
         });
         Member member = memberService.updateMember(memberId, channelSaveRequestDto.getUsername());
-
         String imageUrl = channel.getImage();
         if(file != null) {
             imageUrl = s3UploadUtil.saveProfileImage(file, memberId);
         }
         channel.updateChannel(channelSaveRequestDto, usingCategories, imageUrl);
 
-        String updated = rssUtil.updateRssFeed(member.getRssFeed(), channelSaveRequestDto.getChannelTitle(), "Link",
-                channelSaveRequestDto.getUsername(), channelSaveRequestDto.getChannelDescription(), subCategories,
+        String updated = rssUtil.updateRssFeed(member.getRssFeed(), channelSaveRequestDto.getChannelTitle(), member.getRssFeed(),
+                channelSaveRequestDto.getUsername(), channelSaveRequestDto.getChannelDescription(), mainCategories, subCategories,
                 member.getEmail(), imageUrl);
         String result = s3UploadUtil.uploadRssFeed(member.getUsername(), updated);
         log.info("feed url = {}", result);

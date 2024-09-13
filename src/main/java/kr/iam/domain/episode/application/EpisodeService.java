@@ -172,6 +172,7 @@ public class EpisodeService {
     }
 
     private String makeEpisodeLink(Long memberId, Long episodeId) {
-        return "https://iam/member" + memberId + "/episodeId." + episodeId;
+        //return "https://iam/member" + memberId + "/episodeId." + episodeId;
+        return "https://oguogu.store/NewEpisodeManagement/4";
     }
 }
