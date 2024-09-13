@@ -300,6 +300,7 @@ public class RssUtil {
         Date date = convertToUtcDate(pubDate);
         SyndEntry entry = new SyndEntryImpl();
         entry.setTitle(title);
+        entry.setLink(link);
         entry.setPublishedDate(date);
 
         Namespace dcNamespace = Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1");
@@ -327,10 +328,10 @@ public class RssUtil {
         itunesInfo.setSummary("description");
         entry.getModules().add(itunesInfo);
 
-        Element guid = new Element("guid");
-        guid.setText(link);
-        guid.setAttribute("isPermaLink", "false");
-        entry.getForeignMarkup().add(guid);
+//        Element guid = new Element("guid");
+//        guid.setText(link);
+//        guid.setAttribute("isPermaLink", "false");
+//        entry.getForeignMarkup().add(guid);
 
         Element pubDateElement = new Element("pubDate");
         pubDateElement.setText(formatPubDate(date));
