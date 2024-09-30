@@ -42,7 +42,9 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookieUtil.createCookie("channelId", customUserDetails.getChannelId().toString(), response);
         cookieUtil.createCookie("Authorization", token, response);
         //response.sendRedirect("http://localhost:8080/admin");
-        getRedirectStrategy().sendRedirect(request, response, "https://oguogu.store/NewMyPage");
+        getRedirectStrategy().sendRedirect(request, response, "https://hzpodcaster.com/NewMyPage");
+        //getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080/login/oauth2/code/google");
+
     }
 
     private Cookie createCookie(String value) {
