@@ -133,6 +133,7 @@ public class JWTFilter extends OncePerRequestFilter {
         cookie.setMaxAge(60*60*60);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         return cookie;
     }
 
