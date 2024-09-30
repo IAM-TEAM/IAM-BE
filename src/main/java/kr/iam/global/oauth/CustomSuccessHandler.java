@@ -25,7 +25,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-        System.out.println("test");
         //OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
@@ -41,7 +40,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookieUtil.createCookie("memberId", customUserDetails.getMemberId().toString(), response);
         cookieUtil.createCookie("channelId", customUserDetails.getChannelId().toString(), response);
         cookieUtil.createCookie("Authorization", token, response);
-        //response.sendRedirect("https://hzpodcaster.com/NewMyPage");
+        response.sendRedirect("https://hzpodcaster.com/NewMyPage");
         getRedirectStrategy().sendRedirect(request, response, "https://hzpodcaster.com/NewMyPage");
         //getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080/login/oauth2/code/google");
 
