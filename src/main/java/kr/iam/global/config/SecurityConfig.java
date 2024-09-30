@@ -50,7 +50,8 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(Arrays.asList("https://oguogu.store", "http://localhost:3000", "http://oguogu.store"));
+                        configuration.setAllowedOrigins(Arrays.asList("https://oguogu.store", "http://localhost:3000", "http://oguogu.store",
+                                "https://www.hzpodcaster.com", "https://hzpodcaster.com"));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
