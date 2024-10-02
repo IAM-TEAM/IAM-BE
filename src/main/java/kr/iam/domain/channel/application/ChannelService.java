@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static kr.iam.domain.channel.dto.ChannelDto.ChannelResponseDto;
@@ -75,15 +76,19 @@ public class ChannelService {
         Long memberId = Long.parseLong(cookieUtil.getCookieValue("memberId", request));
         Long channelId = Long.parseLong(cookieUtil.getCookieValue("channelId", request));
         Channel channel = findByChannelId(channelId);
-        List<String> mainCategories = channelSaveRequestDto.getChannelCategories();
-        List<String> subCategories = channelSaveRequestDto.getChannelDetailCategories();
+        List<String> mainCategories = new ArrayList<>();
+        List<String> subCategories = new ArrayList<>();
+        Map<String, List<String>> categories = channelSaveRequestDto.getChannelCategories();
+        for (String s : categories.keySet()) {
+            mainCategories.add(s);
+            subCategories.addAll(categories.get(s));
+        }
         List<UsingCategory> usingCategories = new ArrayList<>();
         // 기존 UsingCategory 삭제
         usingCategoryService.deleteAllByChannel(channel);
         mainCategories.forEach(categoryName -> {
             Category category = categoryService.findByName(categoryName);
             usingCategories.add(UsingCategory.createUsingCategory(channel, category));
-//            categories.add(category);
         });
         Member member = memberService.updateMember(memberId, channelSaveRequestDto.getUsername());
         String imageUrl = channel.getImage();
@@ -95,8 +100,7 @@ public class ChannelService {
         String updated = rssUtil.updateRssFeed(member.getRssFeed(), channelSaveRequestDto.getChannelTitle(), member.getRssFeed(),
                 channelSaveRequestDto.getUsername(), channelSaveRequestDto.getChannelDescription(), mainCategories, subCategories,
                 member.getEmail(), imageUrl);
-        String result = s3UploadUtil.uploadRssFeed(member.getUsername(), updated);
-        log.info("feed url = {}", result);
+        s3UploadUtil.uploadRssFeed(member.getUsername(), updated);
     }
 
     /**
@@ -106,7 +110,6 @@ public class ChannelService {
      */
     public ChannelResponseDto getInfo(HttpServletRequest request) {
         Long channelId = Long.parseLong(cookieUtil.getCookieValue("channelId", request));
-        log.info("channelId = {}", channelId);
         Channel channel = channelRepository.findAllInfoByChannelId(channelId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.CHANNEL_NOT_FOUND));
         return ChannelResponseDto.from(channel, categoryService.getMemberCategory(channel.getMember().getRssFeed()));

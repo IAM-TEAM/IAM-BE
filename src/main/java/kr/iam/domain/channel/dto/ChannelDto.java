@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ChannelDto {
 
@@ -19,18 +20,16 @@ public class ChannelDto {
         //채널
         private String channelTitle;
         private String channelDescription;
-        private List<String> channelCategories;
-        private List<String> channelDetailCategories;
+        private Map<String, List<String>> channelCategories;
         private Boolean ageLimit;
 
         @Builder
         public ChannelSaveRequestDto(String username, String channelTitle, String channelDescription,
-                                     List<String> channelCategories, List<String> channelDetailCategories, Boolean ageLimit) {
+                                     Map<String, List<String>> channelCategories, Boolean ageLimit) {
             this.username = username;
             this.channelTitle = channelTitle;
             this.channelDescription = channelDescription;
             this.channelCategories = channelCategories;
-            this.channelDetailCategories = channelDetailCategories;
             this.ageLimit = ageLimit;
         }
     }

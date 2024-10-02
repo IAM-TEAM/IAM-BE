@@ -120,7 +120,7 @@ public class RssUtil {
             String modifiedFeedString = deleteItunesCategories(feedString, itunesCategoriesXml);
             modifiedFeedString = insertItunesCategories(modifiedFeedString, itunesCategoriesXml);
 
-            log.info("Modified RSS Feed:\n{}", modifiedFeedString);
+            //log.info("Modified RSS Feed:\n{}", modifiedFeedString);
 
             return modifiedFeedString;
         } catch (Exception e) {
