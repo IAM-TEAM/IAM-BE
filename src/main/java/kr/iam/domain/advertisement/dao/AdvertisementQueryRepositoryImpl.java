@@ -3,6 +3,7 @@ package kr.iam.domain.advertisement.dao;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import kr.iam.domain.advertisement.dto.info.AdvertisementInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import java.util.List;
 
 import static kr.iam.domain.advertisement.domain.QAdvertisement.advertisement;
-import static kr.iam.domain.advertisement.dto.AdvertisementDto.AdvertisementInfo;
 
 @RequiredArgsConstructor
 public class AdvertisementQueryRepositoryImpl implements AdvertisementQueryRepository{

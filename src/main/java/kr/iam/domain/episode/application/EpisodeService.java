@@ -1,21 +1,23 @@
 package kr.iam.domain.episode.application;
 
-import com.amazonaws.services.cloudformation.model.transform.ListTypesResultStaxUnmarshaller;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.io.FeedException;
 import jakarta.servlet.http.HttpServletRequest;
-import kr.iam.domain.advertisement.application.AdvertisementService;
 import kr.iam.domain.advertisement.domain.Advertisement;
-import kr.iam.domain.channel.application.ChannelService;
+import kr.iam.domain.advertisement.helper.AdvertisementHelper;
 import kr.iam.domain.channel.domain.Channel;
-import kr.iam.domain.episode.dao.EpisodeRepository;
+import kr.iam.domain.channel.helper.ChannelHelper;
 import kr.iam.domain.episode.domain.Episode;
-import kr.iam.domain.episode_advertisement.application.EpisodeAdvertisementService;
-import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
-import kr.iam.domain.member.application.MemberService;
+import kr.iam.domain.episode.domain.EpisodeAdvertisement;
+import kr.iam.domain.episode.dto.info.EpisodeInfo;
+import kr.iam.domain.episode.dto.req.EpisodeSaveReqDto;
+import kr.iam.domain.episode.dto.res.EpisodeInfoResDto;
+import kr.iam.domain.episode.dto.res.EpisodePageResDto;
+import kr.iam.domain.episode.helper.EpisodeHelper;
+import kr.iam.domain.episode.mapper.EpisodeMapper;
 import kr.iam.domain.member.domain.Member;
-import kr.iam.global.exception.BusinessLogicException;
-import kr.iam.global.exception.code.ExceptionCode;
+import kr.iam.domain.member.helper.MemberHelper;
+import kr.iam.global.aspect.member.MemberInfoParam;
 import kr.iam.global.util.CookieUtil;
 import kr.iam.global.util.RssUtil;
 import kr.iam.global.util.S3UploadUtil;
@@ -30,13 +32,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static kr.iam.domain.episode.dto.EpisodeDto.*;
 
 @Slf4j
 @Service
@@ -44,31 +43,33 @@ import static kr.iam.domain.episode.dto.EpisodeDto.*;
 @Transactional(readOnly = true)
 public class EpisodeService {
 
-    private final EpisodeRepository episodeRepository;
-    private final ChannelService channelService;
-    private final MemberService memberService;
+    private final EpisodeHelper episodeHelper;
+    private final EpisodeMapper episodeMapper;
+    private final ChannelHelper channelHelper;
+    private final MemberHelper memberHelper;
+    private final AdvertisementHelper advertisementHelper;
     private final S3UploadUtil s3UploadUtil;
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
-    private final AdvertisementService advertisementService;
+    private static final String DOMAIN_URL = "https://hzpodcaster.com/NewEpisodeManagement/";
 
     /**
      * 에피소드 저장
      * @param image
      * @param content
      * @param requestDto
-     * @param request
+     * @param memberInfoParam
      * @return
      */
     @Transactional
-    public Long saveEpisode(MultipartFile image, MultipartFile content, EpisodeSaveRequestDto requestDto,
-                              HttpServletRequest request) {
+    public Long saveEpisode(MultipartFile image, MultipartFile content, EpisodeSaveReqDto requestDto,
+                            MemberInfoParam memberInfoParam) {
         try {
-            Long channelId = Long.valueOf(cookieUtil.getCookieValue("channelId", request));
-            Long memberId = Long.valueOf(cookieUtil.getCookieValue("memberId", request));
-            Member member = memberService.findById(memberId);
-            Channel channel = channelService.findByChannelId(channelId);
-            LocalDateTime uploadTime = requestDto.getReservationTime();
+            Long channelId = memberInfoParam.channelId();
+            Long memberId = memberInfoParam.memberId();
+            Member member = memberHelper.findById(memberId);
+            Channel channel = channelHelper.findById(channelId);
+            LocalDateTime uploadTime = requestDto.reservationTime();
             if (uploadTime == null) {
                 uploadTime = LocalDateTime.now();
             }
@@ -77,16 +78,16 @@ public class EpisodeService {
 
             //DB 업로드
             Episode episode = Episode.of(requestDto, channel, imageUrl, contentUrl, uploadTime);
-            if (requestDto.getAdvertiseId() != null) {
+            if (requestDto.advertiseId() != null) {
                 List<EpisodeAdvertisement> episodeAdvertisementList =
-                        toEpisodeAdvertisementList(episode, requestDto.getAdvertiseId(), requestDto.getAdvertiseStart());
+                        toEpisodeAdvertisementList(episode, requestDto.advertiseId(), requestDto.advertiseStart());
                 episode.getEpisodeAdvertisementList().addAll(episodeAdvertisementList);
             }
-            episodeRepository.save(episode);
+            episodeHelper.save(episode);
 
             //RSS 피드 수정
-            String link = makeEpisodeLink(memberId, episode.getId());
-            SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.getTitle(), requestDto.getDescription(),
+            String link = makeEpisodeLink(episode.getId());
+            SyndEntry newEpisode = rssUtil.createNewEpisode(requestDto.title(), requestDto.description(),
                     link, uploadTime, contentUrl, imageUrl, "audio/mpeg", member.getName());
             rssUtil.addEpisode(member.getRssFeed(), newEpisode);
 
@@ -104,27 +105,27 @@ public class EpisodeService {
      * @param episodeId
      * @return
      */
-    public EpisodeInfoResponseDto getEpisode(Long episodeId) {
-        Episode episode = episodeRepository.findByIdAndEpisodeAdvertisement(episodeId)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
-        return EpisodeInfoResponseDto.of(episode);
+    public EpisodeInfoResDto getEpisode(Long episodeId) {
+        Episode episode = episodeHelper.findByIdAndEpisodeAdvertisement(episodeId);
+        return episodeMapper.toEpisodeInfoResDto(episode);
     }
 
     /**
      * 에피소드 리스트 조회(페이징)
      * @param upload
      * @param pageable
-     * @param request
+     * @param memberInfoParam
      * @return
      */
-    public Page<EpisodeListInfoDto> getEpisodeList(int upload, Pageable pageable, HttpServletRequest request) {
-        Long channelId = Long.valueOf(cookieUtil.getCookieValue("channelId", request));
-        Channel channel = channelService.findByChannelId(channelId);
-        Page<Episode> byUploadAndChannel = episodeRepository.findByUploadAndChannel(upload, channel, pageable);
-        List<EpisodeListInfoDto> dtos = byUploadAndChannel.getContent().stream()
-                .map(EpisodeListInfoDto::of)
+    public EpisodePageResDto getEpisodeList(int upload, Pageable pageable, MemberInfoParam memberInfoParam) {
+        Long channelId = memberInfoParam.channelId();
+        Channel channel = channelHelper.findById(channelId);
+        Page<Episode> byUploadAndChannel = episodeHelper.findByUploadAndChannel(upload, channel, pageable);
+        List<EpisodeInfo> dtos = byUploadAndChannel.getContent().stream()
+                .map(EpisodeInfo::of)
                 .toList();
-        return new PageImpl<>(dtos, pageable, byUploadAndChannel.getTotalElements());
+        PageImpl<EpisodeInfo> episodeInfos = new PageImpl<>(dtos, pageable, byUploadAndChannel.getTotalElements());
+        return episodeMapper.toEpisodePageResDto(episodeInfos);
     }
 
     /**
@@ -136,12 +137,11 @@ public class EpisodeService {
     @Transactional
     public void delete(Long episodeId, HttpServletRequest request) {
         Long memberId = Long.valueOf(cookieUtil.getCookieValue("memberId", request));
-        Member member = memberService.findById(memberId);
-        Episode episode = episodeRepository.findById(episodeId)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.EPISODE_NOT_FOUND));
+        Member member = memberHelper.findById(memberId);
+        Episode episode = episodeHelper.findById(episodeId);
         s3UploadUtil.deleteFile(episode.getImage());
         s3UploadUtil.deleteFile(episode.getContent());
-        String link = makeEpisodeLink(memberId, episodeId);
+        String link = makeEpisodeLink(episodeId);
         try {
             rssUtil.deleteEpisode(member.getRssFeed(), link);
         } catch (IOException e) {
@@ -149,7 +149,7 @@ public class EpisodeService {
         } catch (FeedException e) {
             throw new RuntimeException(e);
         }
-        episodeRepository.delete(episode);
+        episodeHelper.delete(episode);
     }
 
     private List<String> toList(String value) {
@@ -164,14 +164,14 @@ public class EpisodeService {
         List<String> startTimeList = toList(times);
         List<EpisodeAdvertisement> result = IntStream.range(0, adIds.size())
                 .mapToObj(i -> {
-                    Advertisement byAdvertiseId = advertisementService.findByAdvertiseId(Long.valueOf(adIds.get(i)));
+                    Advertisement byAdvertiseId = advertisementHelper.findByAdvertiseId(Long.valueOf(adIds.get(i)));
                     return EpisodeAdvertisement.of(episode, byAdvertiseId, startTimeList.get(i));
                 })
                 .collect(Collectors.toList());
         return result;
     }
 
-    private String makeEpisodeLink(Long memberId, Long episodeId) {
-        return "https://oguogu.store/NewEpisodeManagement/" + episodeId;
+    private String makeEpisodeLink(Long episodeId) {
+        return DOMAIN_URL + episodeId;
     }
 }

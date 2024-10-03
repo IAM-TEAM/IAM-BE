@@ -31,7 +31,7 @@ public class CustomOAuth2User implements OAuth2User {
             @Override
             public String getAuthority() {
 
-                return memberDTO.getRole().toString();
+                return memberDTO.role().toString();
             }
         });
 
@@ -41,19 +41,19 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
 
-        return memberDTO.getName();
+        return memberDTO.memberName();
     }
 
     public String getUsername() {
 
-        return memberDTO.getUsername();
+        return memberDTO.memberName();
     }
 
     public Long getMemberId() {
-        return memberDTO.getMemberId();
+        return memberDTO.memberId();
     }
 
     public Long getChannelId() {
-        return memberDTO.getChannelId();
+        return memberDTO.channelId();
     }
 }

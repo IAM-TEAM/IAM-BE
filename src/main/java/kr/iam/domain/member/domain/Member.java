@@ -1,9 +1,9 @@
 package kr.iam.domain.member.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.BaseTimeEntity;
 import kr.iam.domain.channel.domain.Channel;
-import kr.iam.domain.using_platform.domain.UsingPlatform;
+import kr.iam.domain.platform.domain.UsingPlatform;
+import kr.iam.global.domain.BaseTimeEntity;
 import lombok.*;
 
 import java.util.ArrayList;

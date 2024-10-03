@@ -9,6 +9,7 @@ import kr.iam.global.jwt.JwtAccessDeniedHandler;
 import kr.iam.global.jwt.JwtAuthenticationEntryPoint;
 import kr.iam.global.oauth.CustomOAuth2UserService;
 import kr.iam.global.oauth.CustomSuccessHandler;
+import kr.iam.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +42,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JWTUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private static final String[] whiteList = {};
     private static final String[] whiteListGET = {"/api/category", "/api/review", "/api/banner"};
 
@@ -88,8 +90,8 @@ public class SecurityConfig {
 
         //JWTFilter 추가
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil, cookieUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JWTFilter(jwtUtil, cookieUtil), OAuth2LoginAuthenticationFilter.class);
 
         //oauth2
         http

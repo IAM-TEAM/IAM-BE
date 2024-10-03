@@ -1,15 +1,23 @@
 package kr.iam.domain.member.dto;
 
 import kr.iam.domain.member.domain.Role;
+import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
-@Builder
-public class MemberDTO {
-    private Enum<Role> role;
-    private String name;
-    private String username;
-    private Long memberId;
-    private Long channelId;
+@Builder(access = AccessLevel.PRIVATE)
+public record MemberDTO(
+        Enum<Role> role,
+        String memberName,
+        Long memberId,
+        Long channelId
+) {
+    public static MemberDTO of(String memberName, Long memberId, Long channelId, Role memberRole) {
+        return MemberDTO
+                .builder()
+                .memberName(memberName)
+                .memberId(memberId)
+                .channelId(channelId)
+                .role(memberRole)
+                .build();
+    }
 }

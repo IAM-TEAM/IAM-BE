@@ -2,13 +2,12 @@ package kr.iam.domain.category.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import kr.iam.domain.category.application.CategoryService;
+import kr.iam.domain.category.dto.req.CategorySaveReqDto;
+import kr.iam.global.domain.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static kr.iam.domain.category.dto.CategoryDto.CategoryResponseDtoList;
-import static kr.iam.domain.category.dto.CategoryDto.CategorySaveRequestDto;
 
 @RestController
 @RequestMapping("/api/category")
@@ -24,19 +23,19 @@ public class CategoryController {
      */
     @Operation(summary = "카테고리 리스트", description = "카테고리 전부 추출(채널 상관 없이)")
     @GetMapping
-    public ResponseEntity<CategoryResponseDtoList> getCategoryList() {
-        return ResponseEntity.ok(categoryService.getCategoryList());
+    public ResponseEntity<SuccessResponse<?>> getCategoryList() {
+        return SuccessResponse.ok(categoryService.getCategoryList());
     }
 
     /**
      * 관리자 용 카테고리 생성 API
-     * @param categorySaveRequestDto
+     * @param reqDto
      * @return
      */
     @Operation(summary = "카테고리 생성", description = "카테고리 생성(관리자 용)")
     @PostMapping("/admin")
-    public ResponseEntity<String> setCategory(@RequestBody CategorySaveRequestDto categorySaveRequestDto) {
-        return ResponseEntity.ok(categoryService.saveCategory(categorySaveRequestDto) + " created");
+    public ResponseEntity<SuccessResponse<?>> setCategory(@RequestBody CategorySaveReqDto reqDto) {
+        return SuccessResponse.ok(categoryService.saveCategory(reqDto));
     }
 
     /**
@@ -46,14 +45,7 @@ public class CategoryController {
      */
     @Operation(summary = "하위 카테고리 추출", description = "하위 카테고리 추출")
     @GetMapping("/sub")
-    public ResponseEntity<CategoryResponseDtoList> getSubCategoryList(@RequestParam String name) {
-        return ResponseEntity.ok(categoryService.getCategoryResponseDtoList(name));
+    public ResponseEntity<SuccessResponse<?>> getSubCategoryList(@RequestParam String name) {
+        return SuccessResponse.ok(categoryService.getCategoryResponseDtoList(name));
     }
-
-//    @Operation(summary = "Member 카테고리 추출",
-//            description = "Member의 채널 카테고리 추출(RSS Feed에서 값을 꺼내올 지 아니면 ChannelId를 통해서 가져올 지 고민중")
-//    @GetMapping("/member")
-//    public ResponseEntity<CategoryMemberResponseDto> getCategoryByMemberId(HttpServletRequest request) {
-//        return ResponseEntity.ok(categoryService.getMemberCategoryList(request));
-//    }
 }

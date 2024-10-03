@@ -3,8 +3,8 @@ package kr.iam.global.util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.iam.global.exception.BusinessLogicException;
-import kr.iam.global.exception.code.ExceptionCode;
+import kr.iam.global.error.code.GlobalErrorCode;
+import kr.iam.global.error.exception.InvalidValueException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,10 +20,10 @@ public class CookieUtil {
         Cookie cookie = new Cookie(cookieName, cookieValue);
         //쿠키 속성 설정
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        //cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge(1000 * 60 * 60 * 24 * 7);
-        cookie.setAttribute("SameSite", "None");
+        cookie.setMaxAge(1800000);
+        //cookie.setAttribute("SameSite", "None");
         response.addCookie(cookie);
     }
 
@@ -36,7 +36,7 @@ public class CookieUtil {
     public String getCookieValue(String cookieName, HttpServletRequest request){
         Cookie cookie = getCookie(request, cookieName);
         if(cookie == null){
-            throw new BusinessLogicException(ExceptionCode.INVALID_REQUEST);
+            throw new InvalidValueException(GlobalErrorCode.BAD_REQUEST);
         }
         return cookie.getValue();
     }
