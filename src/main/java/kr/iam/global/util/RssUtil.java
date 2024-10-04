@@ -48,9 +48,6 @@ import java.util.*;
 @Component
 public class RssUtil {
 
-    @Value("${spring.jackson.link}")
-    private static String link;
-
     public String updateRssFeed(String existingFeedUrl, String newTitle, String newLink, String newAuthor,
                                 String newDescription, List<String> mainCategories, List<String> subCategories,
                                 String email, String imageUrl) {
@@ -63,7 +60,7 @@ public class RssUtil {
 
             // 새로운 정보로 업데이트
             feed.setTitle(newTitle);
-            feed.setLink(link);
+            feed.setLink(LinkEnum.LINK.getLink());
             feed.setDescription(newDescription);
 
             // 추가: SyndImage 설정

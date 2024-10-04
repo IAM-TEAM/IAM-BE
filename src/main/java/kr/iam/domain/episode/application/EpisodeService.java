@@ -1,6 +1,5 @@
 package kr.iam.domain.episode.application;
 
-import com.amazonaws.services.cloudformation.model.transform.ListTypesResultStaxUnmarshaller;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.io.FeedException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,18 +9,17 @@ import kr.iam.domain.channel.application.ChannelService;
 import kr.iam.domain.channel.domain.Channel;
 import kr.iam.domain.episode.dao.EpisodeRepository;
 import kr.iam.domain.episode.domain.Episode;
-import kr.iam.domain.episode_advertisement.application.EpisodeAdvertisementService;
 import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
 import kr.iam.domain.member.application.MemberService;
 import kr.iam.domain.member.domain.Member;
 import kr.iam.global.exception.BusinessLogicException;
 import kr.iam.global.exception.code.ExceptionCode;
 import kr.iam.global.util.CookieUtil;
+import kr.iam.global.util.LinkEnum;
 import kr.iam.global.util.RssUtil;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,11 +49,6 @@ public class EpisodeService {
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
     private final AdvertisementService advertisementService;
-
-    @Value("${spring.jackson.link}")
-    private static String link;
-    @Value("${spring.jackson.episodic}")
-    private static String episodic;
 
     /**
      * 에피소드 저장
@@ -178,6 +170,6 @@ public class EpisodeService {
     }
 
     private String makeEpisodeLink(Long memberId, Long episodeId) {
-        return link + "/" + episodic + "/" + episodeId;
+        return LinkEnum.EPISODIC.getLink() + "/" + LinkEnum.EPISODIC.getLink() + "/" + episodeId;
     }
 }
