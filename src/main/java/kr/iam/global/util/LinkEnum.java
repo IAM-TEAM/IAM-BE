@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public enum LinkEnum {
-    LINK("hzpodcaster.com"),
+    LINK("https://hzpodcaster.com"),
     EPISODIC("NewEpisodeManagement");
 
     private final String link;

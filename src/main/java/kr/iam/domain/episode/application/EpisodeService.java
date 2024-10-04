@@ -170,6 +170,6 @@ public class EpisodeService {
     }
 
     private String makeEpisodeLink(Long memberId, Long episodeId) {
-        return LinkEnum.EPISODIC.getLink() + "/" + LinkEnum.EPISODIC.getLink() + "/" + episodeId;
+        return LinkEnum.LINK.getLink() + "/" + LinkEnum.EPISODIC.getLink() + "/" + episodeId;
     }
 }
