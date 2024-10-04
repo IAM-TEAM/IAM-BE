@@ -20,6 +20,7 @@ import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
@@ -47,6 +48,9 @@ import java.util.*;
 @Component
 public class RssUtil {
 
+    @Value("${spring.jackson.link}")
+    private static String link;
+
     public String updateRssFeed(String existingFeedUrl, String newTitle, String newLink, String newAuthor,
                                 String newDescription, List<String> mainCategories, List<String> subCategories,
                                 String email, String imageUrl) {
@@ -59,7 +63,7 @@ public class RssUtil {
 
             // 새로운 정보로 업데이트
             feed.setTitle(newTitle);
-            feed.setLink("https://oguogu.store");
+            feed.setLink(link);
             feed.setDescription(newDescription);
 
             // 추가: SyndImage 설정

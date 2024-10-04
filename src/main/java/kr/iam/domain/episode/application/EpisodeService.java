@@ -21,6 +21,7 @@ import kr.iam.global.util.RssUtil;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +52,11 @@ public class EpisodeService {
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
     private final AdvertisementService advertisementService;
+
+    @Value("${spring.jackson.link}")
+    private static String link;
+    @Value("${spring.jackson.episodic}")
+    private static String episodic;
 
     /**
      * 에피소드 저장
@@ -172,6 +178,6 @@ public class EpisodeService {
     }
 
     private String makeEpisodeLink(Long memberId, Long episodeId) {
-        return "https://oguogu.store/NewEpisodeManagement/" + episodeId;
+        return link + "/" + episodic + "/" + episodeId;
     }
 }
