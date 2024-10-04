@@ -2,17 +2,19 @@ package kr.iam.domain.channel.domain;
 
 import jakarta.persistence.*;
 import kr.iam.domain.advertisement.domain.Advertisement;
-import kr.iam.domain.BaseTimeEntity;
+import kr.iam.domain.category.domain.UsingCategory;
+import kr.iam.domain.channel.dto.req.ChannelSaveReqDto;
 import kr.iam.domain.episode.domain.Episode;
-import kr.iam.domain.notification.domain.Notification;
 import kr.iam.domain.member.domain.Member;
-import kr.iam.domain.using_category.domain.UsingCategory;
-import lombok.*;
+import kr.iam.domain.notification.domain.Notification;
+import kr.iam.global.domain.BaseTimeEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static kr.iam.domain.channel.dto.ChannelDto.*;
 
 @Entity
 @Getter
@@ -49,14 +51,14 @@ public class Channel extends BaseTimeEntity {
     @OneToMany(mappedBy = "channel")
     private List<Advertisement> advertisementList = new ArrayList<>();
 
-    public void updateChannel(ChannelSaveRequestDto channelSaveRequestDto, List<UsingCategory> usingCategories,
+    public void updateChannel(ChannelSaveReqDto channelSaveReqDto, List<UsingCategory> usingCategories,
                               String imageUrl) {
         if(imageUrl != null) {
             this.image = imageUrl;
         }
-        this.title = channelSaveRequestDto.getChannelTitle();
-        this.description = channelSaveRequestDto.getChannelDescription();
+        this.title = channelSaveReqDto.channelTitle();
+        this.description = channelSaveReqDto.channelDescription();
         this.usingCategories.addAll(usingCategories);
-        this.age = channelSaveRequestDto.getAgeLimit();
+        this.age = channelSaveReqDto.ageLimit();
     }
 }

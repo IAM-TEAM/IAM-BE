@@ -1,9 +1,10 @@
 package kr.iam.domain.advertisement.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.BaseTimeEntity;
+import kr.iam.domain.advertisement.dto.req.AdvertisementSaveReqDto;
 import kr.iam.domain.channel.domain.Channel;
-import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
+import kr.iam.domain.episode.domain.EpisodeAdvertisement;
+import kr.iam.global.domain.BaseTimeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static kr.iam.domain.advertisement.dto.AdvertisementDto.EnrollAdvertisementDto;
 
 @Entity
 @Getter
@@ -40,15 +40,15 @@ public class Advertisement extends BaseTimeEntity {
     @OneToMany(mappedBy = "advertisement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EpisodeAdvertisement> episodeAdvertisementList = new ArrayList<>();
 
-    public static Advertisement toAdvertisement(EnrollAdvertisementDto advertisement, String url) {
+    public static Advertisement toAdvertisement(AdvertisementSaveReqDto advertisement, String url) {
         return Advertisement.builder()
-                .title(advertisement.getTitle())
+                .title(advertisement.title())
                 .url(url)
-                .startDate(advertisement.getStartDateTime())
-                .endDate(advertisement.getEndDateTime())
-                .requirement(advertisement.getRequirement())
-                .price(advertisement.getPrice())
-                .content(advertisement.getContent())
+                .startDate(advertisement.startDateTime())
+                .endDate(advertisement.endDateTime())
+                .requirement(advertisement.requirement())
+                .price(advertisement.price())
+                .content(advertisement.content())
                 .build();
     }
 }

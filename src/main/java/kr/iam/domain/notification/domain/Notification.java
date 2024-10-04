@@ -1,9 +1,12 @@
 package kr.iam.domain.notification.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.BaseTimeEntity;
 import kr.iam.domain.channel.domain.Channel;
-import lombok.*;
+import kr.iam.global.domain.BaseTimeEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor

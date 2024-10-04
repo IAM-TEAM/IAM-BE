@@ -21,7 +21,17 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.springframework.stereotype.Component;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -38,7 +48,8 @@ import java.util.*;
 public class RssUtil {
 
     public String updateRssFeed(String existingFeedUrl, String newTitle, String newLink, String newAuthor,
-                                String newDescription, List<String> categories, String email, String imageUrl) {
+                                String newDescription, List<String> mainCategories, List<String> subCategories,
+                                String email, String imageUrl) {
         try {
             Date now = convertToUtcDate(LocalDateTime.now());
             // 기존 피드 읽기
@@ -48,7 +59,7 @@ public class RssUtil {
 
             // 새로운 정보로 업데이트
             feed.setTitle(newTitle);
-            feed.setLink(newLink);
+            feed.setLink("https://oguogu.store");
             feed.setDescription(newDescription);
 
             // 추가: SyndImage 설정
@@ -56,6 +67,8 @@ public class RssUtil {
             image.setTitle(newTitle);
             image.setUrl(imageUrl);
             image.setLink(newLink);
+            image.setWidth(1400);
+            image.setHeight(1400);
             feed.setImage(image);
 
             List<Module> modules = feed.getModules();
@@ -91,14 +104,10 @@ public class RssUtil {
             itunesInfo.setExplicit(false);
             itunesInfo.setType("episodic");
 
-            List<Category> itunesCategories = new ArrayList<>();
-            for (String category : categories) {
-                itunesCategories.add(new Category(category));
-            }
-            itunesInfo.setCategories(itunesCategories);
+            // iTunes 카테고리 생성
+            String itunesCategoriesXml = createItunesCategories(mainCategories, subCategories);
 
-            feed.setModules(modules);
-
+            // 피드 출력
             SyndFeedOutput output = new SyndFeedOutput();
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             OutputStreamWriter writer = new OutputStreamWriter(byteArrayOutputStream, StandardCharsets.UTF_8);
@@ -107,12 +116,13 @@ public class RssUtil {
 
             String feedString = byteArrayOutputStream.toString(StandardCharsets.UTF_8);
 
-            // XML 수정 및 포맷팅
-            //feedString = addAtomNamespaceAndFormat(feedString);
+            // 기존 카테고리 제거 후 새 카테고리 삽입
+            String modifiedFeedString = deleteItunesCategories(feedString, itunesCategoriesXml);
+            modifiedFeedString = insertItunesCategories(modifiedFeedString, itunesCategoriesXml);
 
-            log.info("Modified RSS Feed:\n{}", feedString);
+            //log.info("Modified RSS Feed:\n{}", modifiedFeedString);
 
-            return feedString;
+            return modifiedFeedString;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -168,29 +178,14 @@ public class RssUtil {
 
             feed.setModules(feedModules);
 
-            // atom:link 태그 설정
-            List<SyndLink> list = new ArrayList<>();
-            SyndLinkImpl selfLink = new SyndLinkImpl();
-            selfLink.setRel("self");
-            selfLink.setHref("https://anchor.fm/s/f5858a40/podcast/rss");
-            selfLink.setType("application/rss+xml");
-            list.add(selfLink);
-
-            SyndLinkImpl hubLink = new SyndLinkImpl();
-            hubLink.setRel("hub");
-            hubLink.setHref("https://pubsubhubbub.appspot.com/");
-            list.add(hubLink);
-            feed.setLinks(list);
-
             SyndFeedOutput output = new SyndFeedOutput();
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             OutputStreamWriter writer = new OutputStreamWriter(byteArrayOutputStream, StandardCharsets.UTF_8);
             output.output(feed, writer);
             writer.flush();
 
-            String result =  byteArrayOutputStream.toString(StandardCharsets.UTF_8);
-            result = addAtomNamespaceAndFormat(result);
-            return result;
+            //            result = addAtomNamespaceAndFormat(result, "https://anchor.fm/s/f5858a40/podcast/rss");
+            return byteArrayOutputStream.toString(StandardCharsets.UTF_8);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -231,23 +226,6 @@ public class RssUtil {
         // 리소스 정리
         reader.close();
         stringWriter.close();
-//        String filePath = "updated_feed.xml";
-////        URL url = new URL(feedUrl);
-////        XmlReader reader = new XmlReader(url);
-//        File file = new File(filePath);
-//        FileInputStream inputStream = new FileInputStream(file);
-//        XmlReader reader = new XmlReader(inputStream);
-//        SyndFeed feed = new SyndFeedInput().build(reader);
-//
-//        // 기존 피드에 새로운 항목 추가
-//        feed.getEntries().add(0, newEpisode);  // Add at the beginning of the list
-//
-//        // 파일에 새로운 피드를 덮어쓰기로 출력
-//        FileWriter writer = new FileWriter(file);  // 기존 파일 경로를 사용하여 파일을 덮어쓰기
-//        SyndFeedOutput output = new SyndFeedOutput();
-//        output.output(feed, writer);
-//        writer.close();  // 리소스 정리
-//        reader.close();  // XML Reader 닫기
     }
 
     public List<String> getCategories(String rssFeedUrl) {
@@ -271,34 +249,11 @@ public class RssUtil {
                     categories.add(category);
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return categories;
     }
-//    public List<String> getCategories(String filePath) {
-//        List<String> categories = new ArrayList<>();
-//        try {
-//            File file = new File(filePath);
-//            SAXBuilder saxBuilder = new SAXBuilder();
-//            Document document = saxBuilder.build(file);
-//
-//            Element rootElement = document.getRootElement();
-//            Element channel = rootElement.getChild("channel");
-//
-//            List<Element> categoryElements = channel.getChildren("category", rootElement.getNamespace("itunes"));
-//
-//            for (Element categoryElement : categoryElements) {
-//                String category = categoryElement.getAttributeValue("text");
-//                categories.add(category);
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return categories;
-//    }
 
     public void deleteEpisode(String feedUrl, String episodeLink) throws IOException, FeedException {
         // 기존 피드 파일을 읽기
@@ -373,10 +328,10 @@ public class RssUtil {
         itunesInfo.setSummary("description");
         entry.getModules().add(itunesInfo);
 
-        Element guid = new Element("guid");
-        guid.setText(link);
-        guid.setAttribute("isPermaLink", "false");
-        entry.getForeignMarkup().add(guid);
+//        Element guid = new Element("guid");
+//        guid.setText(link);
+//        guid.setAttribute("isPermaLink", "false");
+//        entry.getForeignMarkup().add(guid);
 
         Element pubDateElement = new Element("pubDate");
         pubDateElement.setText(formatPubDate(date));
@@ -400,13 +355,6 @@ public class RssUtil {
         }
     }
 
-    private SyndContent createDescription(String description) {
-        SyndContent content = new SyndContentImpl();
-        content.setType("text/plain");
-        content.setValue(description);
-        return content;
-    }
-
     public Date convertToUtcDate(LocalDateTime localDateTime) {
         ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC"));
         return Date.from(zonedDateTime.toInstant());
@@ -424,29 +372,94 @@ public class RssUtil {
         return sdf.format(date);
     }
 
-//    private Date convertToKstDate(LocalDateTime localDateTime) {
-//        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of("Asia/Seoul")).minusHours(3);
-//        return Date.from(zonedDateTime.toInstant());
-//    }
-//
-//    public Date convertToKstDateSame(LocalDateTime localDateTime) {
-//        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of("Asia/Seoul"));
-//        return Date.from(zonedDateTime.toInstant());
-//    }
-//
-//    public String formatPubDate(Date date) {
-//        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
-//        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-//        return sdf.format(date);
-//    }
-//
-//    public String formatDcDate(Date date) {
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-//        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
-//        return sdf.format(date);
-//    }
+    private String createItunesCategories(List<String> mainCategories, List<String> subCategories) {
+        StringBuilder xmlBuilder = new StringBuilder();
 
-    private String addAtomNamespaceAndFormat(String feedString) {
+        for (int i = 0; i < mainCategories.size(); i++) {
+            String parentCategory = mainCategories.get(i).replace("&", "&amp;");  // 부모 카테고리
+            String childCategory = (i < subCategories.size()) ? subCategories.get(i).replace("&", "&amp;") : null;  // 자식 카테고리
+
+            // 부모 카테고리 열기
+            xmlBuilder.append("<itunes:category text=\"").append(parentCategory).append("\">");
+
+            // 자식 카테고리 확인 후 추가
+            if (childCategory != null && !childCategory.isEmpty()) {
+                xmlBuilder.append("<itunes:category text=\"").append(childCategory).append("\" />");
+            }
+
+            // 부모 카테고리 닫기
+            xmlBuilder.append("</itunes:category>");
+        }
+
+        return xmlBuilder.toString();
+    }
+
+    private String insertItunesCategories(String feedString, String itunesCategoriesXml) {
+        // <itunes:type> 태그 바로 뒤에 카테고리를 삽입
+        String insertionPoint = "<itunes:type>";
+        int insertPosition = feedString.indexOf(insertionPoint);
+
+        if (insertPosition > -1) {
+            // <itunes:type> 태그 뒤에 카테고리 XML을 삽입
+            int endOfTypeTag = feedString.indexOf("</itunes:type>", insertPosition) + "</itunes:type>".length();
+            return feedString.substring(0, endOfTypeTag)
+                    + itunesCategoriesXml
+                    + feedString.substring(endOfTypeTag);
+        }
+
+        return feedString;  // <itunes:type> 태그를 못 찾으면 원본 반환
+    }
+
+    private String deleteItunesCategories(String feedString, String itunesCategoriesXml) {
+        try {
+            // XML 문자열을 Document로 변환
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true); // 네임스페이스 지원
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputStream inputStream = new ByteArrayInputStream(feedString.getBytes());
+            org.w3c.dom.Document doc = builder.parse(inputStream);
+
+            // 모든 itunes:category 태그를 찾아서 삭제
+            NodeList categoryNodes = doc.getElementsByTagNameNS("*", "category"); // 네임스페이스 무시하고 검색
+            for (int i = categoryNodes.getLength() - 1; i >= 0; i--) {
+                Node node = categoryNodes.item(i);
+                node.getParentNode().removeChild(node);
+            }
+
+            // 새로운 카테고리 삽입을 위한 DocumentFragment 생성
+            DocumentFragment fragment = doc.createDocumentFragment();
+
+            // 새로운 카테고리 XML을 DocumentFragment에 추가
+            fragment.appendChild(doc.createTextNode(itunesCategoriesXml));
+
+            // <itunes:owner> 태그를 찾아 그 뒤에 카테고리 삽입
+            NodeList ownerNodes = doc.getElementsByTagNameNS("*", "owner");
+            if (ownerNodes.getLength() > 0) {
+                Node ownerNode = ownerNodes.item(0);
+                ownerNode.getParentNode().insertBefore(fragment, ownerNode.getNextSibling());
+            }
+
+            // Document를 다시 문자열로 변환
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            // 추가: 공백 제거를 위한 설정
+            transformer.setOutputProperty(OutputKeys.INDENT, "no"); // 공백 없이 출력
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no"); // XML 선언 유지
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "no");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "0"); // 들여쓰기 없앰
+            transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            return writer.toString();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return feedString;
+        }
+    }
+
+    public String addAtomNamespaceAndFormat(String feedString, String link) {
         try {
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(new StringReader(feedString));
@@ -460,7 +473,7 @@ public class RssUtil {
             // Add atom:link elements
             Element selfLink = new Element("link", atomNamespace);
             selfLink.setAttribute("rel", "self");
-            selfLink.setAttribute("href", "https://anchor.fm/s/f5858a40/podcast/rss");
+            selfLink.setAttribute("href", link);
             selfLink.setAttribute("type", "application/rss+xml");
 
             Element hubLink = new Element("link", atomNamespace);

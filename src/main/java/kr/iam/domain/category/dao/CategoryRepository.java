@@ -1,7 +1,6 @@
 package kr.iam.domain.category.dao;
 
 import kr.iam.domain.category.domain.Category;
-import kr.iam.domain.channel.domain.Channel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

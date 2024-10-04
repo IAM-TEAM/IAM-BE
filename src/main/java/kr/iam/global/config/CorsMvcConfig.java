@@ -8,6 +8,10 @@ public class CorsMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry corsRegistry) {
         corsRegistry.addMapping("/**")
                 .allowCredentials(true)
-                .allowedOrigins("https://oguogu.store", "http://34.47.110.111:3000", "http://localhost:3000");
+                .allowedOrigins("https://oguogu.store", "http://oguogu.store",
+                        "http://34.47.110.111:3000", "http://localhost:3000",
+                        "https://hzpodcaster.com", "https://www.hzpodcaster.com"
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
     }
 }

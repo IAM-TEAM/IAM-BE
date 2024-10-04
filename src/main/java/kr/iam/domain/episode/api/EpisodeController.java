@@ -10,10 +10,13 @@ import com.rometools.rome.io.SyndFeedOutput;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import kr.iam.domain.episode.application.EpisodeService;
+import kr.iam.domain.episode.dto.req.EpisodeSaveReqDto;
+import kr.iam.global.annotation.MemberInfo;
+import kr.iam.global.aspect.member.MemberInfoParam;
+import kr.iam.global.domain.SuccessResponse;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
@@ -25,11 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static kr.iam.domain.episode.dto.EpisodeDto.*;
-
 @Slf4j
 @RestController
-@RequestMapping("/episode")
+@RequestMapping("/api/episode")
 @RequiredArgsConstructor
 public class EpisodeController {
 
@@ -42,19 +43,18 @@ public class EpisodeController {
      * @param image
      * @param content
      * @param episodeData
-     * @param request
+     * @param memberInfoParam
      * @return
      * @throws JsonProcessingException
      */
     @Operation(summary = "에피소드 생성", description = "에피소드 생성(이미지, 오디오 파일 필수) RequestPart로 formData 형식")
     @PostMapping
-    public ResponseEntity<String> uploadEpisode(@RequestPart(value = "image") MultipartFile image,
-                                                @RequestPart(value = "audio") MultipartFile content,
-                                                @RequestPart(value = "episodeData") String episodeData,
-                                                HttpServletRequest request) throws JsonProcessingException {
-        EpisodeSaveRequestDto requestDto = objectMapper.readValue(episodeData, EpisodeSaveRequestDto.class);
-        log.info("time={}", requestDto.getReservationTime());
-        return ResponseEntity.ok(episodeService.saveEpisode(image, content, requestDto, request) + " created");
+    public ResponseEntity<SuccessResponse<?>> uploadEpisode(@RequestPart(value = "image") MultipartFile image,
+                                                            @RequestPart(value = "audio") MultipartFile content,
+                                                            @RequestPart(value = "episodeData") String episodeData,
+                                                            @MemberInfo MemberInfoParam memberInfoParam) throws JsonProcessingException {
+        EpisodeSaveReqDto requestDto = objectMapper.readValue(episodeData, EpisodeSaveReqDto.class);
+        return SuccessResponse.ok(episodeService.saveEpisode(image, content, requestDto, memberInfoParam));
     }
 
     /**
@@ -64,8 +64,8 @@ public class EpisodeController {
      */
     @Operation(summary = "에피소드 조회", description = "에피소드 조회(Id를 PathVariable로 받음)")
     @GetMapping("/{episodeId}")
-    public ResponseEntity<EpisodeInfoResponseDto> getEpisodeInfo(@PathVariable("episodeId") Long episodeId) {
-        return ResponseEntity.ok(episodeService.getEpisode(episodeId));
+    public ResponseEntity<SuccessResponse<?>> getEpisodeInfo(@PathVariable("episodeId") Long episodeId) {
+        return SuccessResponse.ok(episodeService.getEpisode(episodeId));
     }
 
     /**
@@ -73,15 +73,15 @@ public class EpisodeController {
      * -1이면 임시 저장, 1이면 완료, 0이면 예정
      * @param upload
      * @param pageable
-     * @param request
+     * @param memberInfoParam
      * @return
      */
     @Operation(summary = "에피소드 리스트 조회", description = "upload가 1이면 완료 0이면 예정 -1이면 임시 저장")
     @GetMapping("/list/{upload}")
-    public ResponseEntity<Page<EpisodeListInfoDto>> getEpisodeList(@PathVariable("upload") int upload,
+    public ResponseEntity<SuccessResponse<?>> getEpisodeList(@PathVariable("upload") int upload,
                                                                    @PageableDefault Pageable pageable,
-                                                                   HttpServletRequest request) {
-        return ResponseEntity.ok(episodeService.getEpisodeList(upload, pageable, request));
+                                                                   @MemberInfo MemberInfoParam memberInfoParam) {
+        return SuccessResponse.ok(episodeService.getEpisodeList(upload, pageable, memberInfoParam));
     }
 
     /**
@@ -91,9 +91,9 @@ public class EpisodeController {
      */
     @Operation(summary = "에피소드 삭제", description = "PathVariable로 episodeId를 받아서 해당 에피소드 삭제 + RSS Feed도 같이 삭제")
     @DeleteMapping("/{episodeId}")
-    public ResponseEntity<String> deleteEpisode(@PathVariable("episodeId") Long episodeId, HttpServletRequest request) {
+    public ResponseEntity<SuccessResponse<?>> deleteEpisode(@PathVariable("episodeId") Long episodeId, HttpServletRequest request) {
         episodeService.delete(episodeId, request);
-        return ResponseEntity.ok("ok");
+        return SuccessResponse.ok(null);
     }
 
     @GetMapping(value = "/rssfeed", produces = MediaType.APPLICATION_XML_VALUE)

@@ -6,7 +6,7 @@
 //import kr.iam.domain.channel.dao.ChannelRepository;
 //import kr.iam.domain.channel.domain.Channel;
 //import kr.iam.domain.channel.dto.ChannelDto;
-//import kr.iam.domain.detail_category.domain.DetailCategory;
+//import kr.iam.domain.category.domain.DetailCategory;
 //import kr.iam.domain.member.application.MemberService;
 //import kr.iam.domain.member.domain.Member;
 //import kr.iam.global.util.CookieUtil;

@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,8 +29,6 @@ public class S3UploadUtil {
         InputStream stream = new ByteArrayInputStream(rssFeedXml.getBytes(StandardCharsets.UTF_8));
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("application/rss+xml; charset=UTF-8");
-        metadata.setContentEncoding("UTF-8");
-
         metadata.setContentLength(rssFeedXml.getBytes(StandardCharsets.UTF_8).length);
 
         amazonS3.putObject(new PutObjectRequest(bucket, modifiedKeyName, stream, metadata));
@@ -39,11 +38,12 @@ public class S3UploadUtil {
     public String saveProfileImage(MultipartFile multipartFile, Long memberId) throws IOException {
         String extension = extractExtension(multipartFile);
         ObjectMetadata metadata = new ObjectMetadata();
-        String originalFilename = multipartFile.getOriginalFilename();
-        String type = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+//        if(!Objects.equals(multipartFile.getContentType(), "image/png") && !Objects.equals(multipartFile.getContentType(), "image/jpg")) {
+//            throw new IOException();
+//        }
         metadata.setContentLength(multipartFile.getSize());
         metadata.setContentType(multipartFile.getContentType());
-        String key = "Member Profile" + memberId + extension;
+        String key = "Member_Profile" + memberId + extension;
         amazonS3.putObject(bucket, key, multipartFile.getInputStream(), metadata);
         log.info("{}타입 {} 업로드 완료", multipartFile.getContentType(), key);
         return amazonS3.getUrl(bucket, key).toString();

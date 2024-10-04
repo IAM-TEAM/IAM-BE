@@ -1,10 +1,11 @@
 package kr.iam.domain.category.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.BaseTimeEntity;
-import kr.iam.domain.channel.domain.Channel;
-import kr.iam.domain.detail_category.domain.DetailCategory;
-import lombok.*;
+import kr.iam.global.domain.BaseTimeEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;

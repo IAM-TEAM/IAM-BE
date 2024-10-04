@@ -1,20 +1,16 @@
 package kr.iam.domain.episode.domain;
 
 import jakarta.persistence.*;
-import kr.iam.domain.BaseTimeEntity;
 import kr.iam.domain.channel.domain.Channel;
-import kr.iam.domain.episode.dto.EpisodeDto;
-import kr.iam.domain.episode_advertisement.domain.EpisodeAdvertisement;
+import kr.iam.domain.episode.dto.req.EpisodeSaveReqDto;
+import kr.iam.global.domain.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static kr.iam.domain.episode.dto.EpisodeDto.*;
 
 @Getter
 @Entity
@@ -55,17 +51,17 @@ public class Episode extends BaseTimeEntity {
         this.channel = channel;
     }
 
-    public static Episode of(EpisodeSaveRequestDto requestDto, Channel channel, String imageUrl,
+    public static Episode of(EpisodeSaveReqDto requestDto, Channel channel, String imageUrl,
                              String content, LocalDateTime uploadTime) {
         return Episode
                 .builder()
                 .image(imageUrl)
-                .title(requestDto.getTitle())
-                .description(requestDto.getDescription())
+                .title(requestDto.title())
+                .description(requestDto.description())
                 .content(content)
-                .limitAge(requestDto.getAge())
+                .limitAge(requestDto.age())
                 .reservation(uploadTime)
-                .upload(requestDto.getUpload())
+                .upload(requestDto.upload())
                 .channel(channel)
                 .build();
     }
