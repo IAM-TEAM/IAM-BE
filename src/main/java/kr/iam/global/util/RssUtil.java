@@ -59,7 +59,7 @@ public class RssUtil {
 
             // 새로운 정보로 업데이트
             feed.setTitle(newTitle);
-            feed.setLink("https://oguogu.store");
+            feed.setLink(LinkUtil.LINK.getLink());
             feed.setDescription(newDescription);
 
             // 추가: SyndImage 설정

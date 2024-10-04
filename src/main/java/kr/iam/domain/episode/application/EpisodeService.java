@@ -19,6 +19,7 @@ import kr.iam.domain.member.domain.Member;
 import kr.iam.domain.member.helper.MemberHelper;
 import kr.iam.global.aspect.member.MemberInfoParam;
 import kr.iam.global.util.CookieUtil;
+import kr.iam.global.util.LinkUtil;
 import kr.iam.global.util.RssUtil;
 import kr.iam.global.util.S3UploadUtil;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,6 @@ public class EpisodeService {
     private final S3UploadUtil s3UploadUtil;
     private final CookieUtil cookieUtil;
     private final RssUtil rssUtil;
-    private static final String DOMAIN_URL = "https://hzpodcaster.com/NewEpisodeManagement/";
 
     /**
      * 에피소드 저장
@@ -172,6 +172,6 @@ public class EpisodeService {
     }
 
     private String makeEpisodeLink(Long episodeId) {
-        return DOMAIN_URL + episodeId;
+        return LinkUtil.LINK.getLink() + "/" + LinkUtil.EPISODIC.getLink() + "/" + episodeId;
     }
 }
