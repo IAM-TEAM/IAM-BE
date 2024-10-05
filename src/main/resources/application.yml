@@ -32,6 +32,8 @@ spring:
 
   jwt:
     secret: ${JWT_KEY}
+    expireAccessToken: 1800000
+    expireRefreshToken: 604800000
 
 cloud:
   aws:
