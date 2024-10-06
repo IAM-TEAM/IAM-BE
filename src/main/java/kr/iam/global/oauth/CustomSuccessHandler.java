@@ -43,8 +43,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookieUtil.createCookie(JwtEnum.ACCESS_TOKEN_NAME.getDesc(), token, response);
 //        cookieUtil.createCookie("memberId", customUserDetails.getMemberId().toString(), response);
 //        cookieUtil.createCookie("channelId", customUserDetails.getChannelId().toString(), response);
-        //response.sendRedirect("https://hzpodcaster.com/NewMyPage");
-        getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000/NewMyPage");
+        response.sendRedirect("https://hzpodcaster.com/NewMyPage");
+        //getRedirectStrategy().sendRedirect(request, response, "http://localhost:3000/NewMyPage");
         //getRedirectStrategy().sendRedirect(request, response, "http://localhost:8080/login/oauth2/code/google");
     }
 }
