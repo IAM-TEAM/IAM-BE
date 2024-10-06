@@ -5,7 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Builder(access = AccessLevel.PRIVATE)
 public record ChannelResDto(
@@ -13,24 +15,18 @@ public record ChannelResDto(
         String channelImage,
         String channelTitle,
         String channelDescription,
-        List<String> channelCategories,
-        List<String> channelDetailCategories,
+        Map<String, List<String>> channelCategories,
         Boolean ageLimit,
         String rssFeedUrl
 ) {
-    public static ChannelResDto of(Channel channel, List<String> detailCategories) {
-        List<String> categoryNames = new ArrayList<>();
-        channel.getUsingCategories().forEach(usingCategory -> {
-            categoryNames.add(usingCategory.getCategory().getName());
-        });
+    public static ChannelResDto of(Channel channel, Map<String, List<String>> categoryInfo) {
         return ChannelResDto
                 .builder()
                 .username(channel.getMember().getName())
                 .channelImage(channel.getImage())
                 .channelTitle(channel.getTitle())
                 .channelDescription(channel.getDescription())
-                .channelCategories(categoryNames)
-                .channelDetailCategories(detailCategories)
+                .channelCategories(categoryInfo)
                 .ageLimit(channel.getAge())
                 .rssFeedUrl(channel.getMember().getRssFeed())
                 .build();

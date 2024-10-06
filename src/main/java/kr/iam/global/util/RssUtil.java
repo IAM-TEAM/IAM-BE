@@ -228,8 +228,8 @@ public class RssUtil {
         stringWriter.close();
     }
 
-    public List<String> getCategories(String rssFeedUrl) {
-        List<String> categories = new ArrayList<>();
+    public Map<String, List<String>> getCategories(String rssFeedUrl) {
+        Map<String, List<String>> categoryDetailMap = new HashMap<>();
         try {
             URL url = new URL(rssFeedUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -242,17 +242,29 @@ public class RssUtil {
                 Element rootElement = document.getRootElement();
                 Element channel = rootElement.getChild("channel");
 
-                List<Element> categoryElements = channel.getChildren("category", rootElement.getNamespace("itunes"));
+                // itunes namespace를 사용해서 category 요소 찾기
+                Namespace itunesNamespace = Namespace.getNamespace("itunes", "http://www.itunes.com/dtds/podcast-1.0.dtd");
+                List<Element> categoryElements = channel.getChildren("category", itunesNamespace);
 
                 for (Element categoryElement : categoryElements) {
-                    String category = categoryElement.getAttributeValue("text");
-                    categories.add(category);
+                    String mainCategory = categoryElement.getAttributeValue("text");
+                    List<String> detailCategories = new ArrayList<>();
+
+                    // 하위 카테고리(detailCategory)를 찾음
+                    List<Element> subCategoryElements = categoryElement.getChildren("category", itunesNamespace);
+                    for (Element subCategoryElement : subCategoryElements) {
+                        String detailCategory = subCategoryElement.getAttributeValue("text");
+                        detailCategories.add(detailCategory);
+                    }
+
+                    // mainCategory와 detailCategories 매핑
+                    categoryDetailMap.put(mainCategory, detailCategories);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return categories;
+        return categoryDetailMap;
     }
 
     public void deleteEpisode(String feedUrl, String episodeLink) throws IOException, FeedException {

@@ -2,7 +2,6 @@ package kr.iam.global.config;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import kr.iam.global.jwt.JWTFilter;
 import kr.iam.global.jwt.JWTUtil;
 import kr.iam.global.jwt.JwtAccessDeniedHandler;
@@ -13,18 +12,11 @@ import kr.iam.global.util.CookieUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -43,15 +35,15 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JWTUtil jwtUtil;
     private final CookieUtil cookieUtil;
-    private static final String[] whiteList = {};
-    private static final String[] whiteListGET = {"/api/category", "/api/review", "/api/banner"};
+    private static final String[] whiteList = {"/api/category"};
+    private static final String[] whiteListGET = {"/api/review", "/api/banner"};
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers(whiteList)
-                .requestMatchers(HttpMethod.GET, whiteListGET);
-                //.requestMatchers(HttpMethod.PATCH, whiteListPatch);
-    }
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return web -> web.ignoring().requestMatchers(whiteList);
+//                //.requestMatchers(HttpMethod.GET, whiteListGET);
+//                //.requestMatchers(HttpMethod.PATCH, whiteListPatch);
+//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -63,7 +55,7 @@ public class SecurityConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(Arrays.asList("https://oguogu.store", "http://localhost:3000", "http://oguogu.store",
+                        configuration.setAllowedOrigins(Arrays.asList("https://oguogu.store", "http://localhost:3000",
                                 "https://www.hzpodcaster.com", "https://hzpodcaster.com"));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
@@ -104,15 +96,8 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .requestMatchers("/iam-api/**").permitAll()
-                        //테스트 용으로 허용
-//                        .requestMatchers("/episode/**").permitAll()
-//                        .requestMatchers("/rssfeed").permitAll()
-//                        .requestMatchers("/rss").permitAll()
-//                        .requestMatchers("/platform/{platformId}").permitAll()
-
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS

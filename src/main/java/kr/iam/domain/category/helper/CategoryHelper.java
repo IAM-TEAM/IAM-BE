@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,7 +32,7 @@ public class CategoryHelper {
         return categoryRepository.findAllCategory().stream().map(CategoryInfo::of).collect(Collectors.toList());
     }
 
-    public List<String> getMemberCategory(String rssFeedUrl) {
+    public Map<String, List<String>> getMemberCategory(String rssFeedUrl) {
         return rssUtil.getCategories(rssFeedUrl);
     }
 }
