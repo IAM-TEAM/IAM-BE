@@ -97,7 +97,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .requestMatchers("/iam-api/**").permitAll()
+                        .requestMatchers("/iam-api/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated());
 
         //세션 설정 : STATELESS
