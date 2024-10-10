@@ -48,7 +48,7 @@ import java.util.*;
 public class RssUtil {
 
     public String updateRssFeed(String existingFeedUrl, String newTitle, String newLink, String newAuthor,
-                                String newDescription, List<String> mainCategories, List<String> subCategories,
+                                String newDescription, List<String> mainCategories, Map<String, List<String>> channelCategories,
                                 String email, String imageUrl) {
         try {
             Date now = convertToUtcDate(LocalDateTime.now());
@@ -105,7 +105,7 @@ public class RssUtil {
             itunesInfo.setType("episodic");
 
             // iTunes 카테고리 생성
-            String itunesCategoriesXml = createItunesCategories(mainCategories, subCategories);
+            String itunesCategoriesXml = createItunesCategories(mainCategories, channelCategories);
 
             // 피드 출력
             SyndFeedOutput output = new SyndFeedOutput();
@@ -384,27 +384,48 @@ public class RssUtil {
         return sdf.format(date);
     }
 
-    private String createItunesCategories(List<String> mainCategories, List<String> subCategories) {
-        StringBuilder xmlBuilder = new StringBuilder();
+    // iTunes 카테고리 생성
+    private String createItunesCategories(List<String> mainCategories, Map<String, List<String>> subCategoriesMap) {
+        StringBuilder itunesCategoriesXml = new StringBuilder();
 
-        for (int i = 0; i < mainCategories.size(); i++) {
-            String parentCategory = mainCategories.get(i).replace("&", "&amp;");  // 부모 카테고리
-            String childCategory = (i < subCategories.size()) ? subCategories.get(i).replace("&", "&amp;") : null;  // 자식 카테고리
+        for (String mainCategory : mainCategories) {
+            itunesCategoriesXml.append("<itunes:category text=\"").append(mainCategory).append("\">");
 
-            // 부모 카테고리 열기
-            xmlBuilder.append("<itunes:category text=\"").append(parentCategory).append("\">");
-
-            // 자식 카테고리 확인 후 추가
-            if (childCategory != null && !childCategory.isEmpty()) {
-                xmlBuilder.append("<itunes:category text=\"").append(childCategory).append("\" />");
+            // 현재 상위 카테고리에 해당하는 하위 카테고리 가져오기
+            List<String> subCategories = subCategoriesMap.get(mainCategory);
+            if (subCategories != null) {
+                for (String subCategory : subCategories) {
+                    itunesCategoriesXml.append("<itunes:category text=\"").append(subCategory).append("\" />");
+                }
             }
 
-            // 부모 카테고리 닫기
-            xmlBuilder.append("</itunes:category>");
+            itunesCategoriesXml.append("</itunes:category>");
         }
 
-        return xmlBuilder.toString();
+        return itunesCategoriesXml.toString();
     }
+
+//    private String createItunesCategories(List<String> mainCategories, List<String> subCategories) {
+//        StringBuilder xmlBuilder = new StringBuilder();
+//
+//        for (int i = 0; i < mainCategories.size(); i++) {
+//            String parentCategory = mainCategories.get(i).replace("&", "&amp;");  // 부모 카테고리
+//            String childCategory = (i < subCategories.size()) ? subCategories.get(i).replace("&", "&amp;") : null;  // 자식 카테고리
+//
+//            // 부모 카테고리 열기
+//            xmlBuilder.append("<itunes:category text=\"").append(parentCategory).append("\">");
+//
+//            // 자식 카테고리 확인 후 추가
+//            if (childCategory != null && !childCategory.isEmpty()) {
+//                xmlBuilder.append("<itunes:category text=\"").append(childCategory).append("\" />");
+//            }
+//
+//            // 부모 카테고리 닫기
+//            xmlBuilder.append("</itunes:category>");
+//        }
+//
+//        return xmlBuilder.toString();
+//    }
 
     private String insertItunesCategories(String feedString, String itunesCategoriesXml) {
         // <itunes:type> 태그 바로 뒤에 카테고리를 삽입

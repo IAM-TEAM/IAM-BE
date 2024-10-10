@@ -87,7 +87,7 @@ public class ChannelService {
         channel.updateChannel(channelSaveReqDto, usingCategories, imageUrl);
 
         String updated = rssUtil.updateRssFeed(member.getRssFeed(), channelSaveReqDto.channelTitle(), member.getRssFeed(),
-                channelSaveReqDto.username(), channelSaveReqDto.channelDescription(), mainCategories, subCategories,
+                channelSaveReqDto.username(), channelSaveReqDto.channelDescription(), mainCategories, channelSaveReqDto.channelCategories(),
                 member.getEmail(), imageUrl);
         s3UploadUtil.uploadRssFeed(member.getUsername(), updated);
     }
