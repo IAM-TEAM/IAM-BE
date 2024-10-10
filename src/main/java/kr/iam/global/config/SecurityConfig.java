@@ -35,15 +35,15 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JWTUtil jwtUtil;
     private final CookieUtil cookieUtil;
-    private static final String[] whiteList = {"/api/category"};
+    private static final String[] whiteList = {"/iam-api/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"};
     private static final String[] whiteListGET = {"/api/review", "/api/banner"};
 
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return web -> web.ignoring().requestMatchers(whiteList);
-//                //.requestMatchers(HttpMethod.GET, whiteListGET);
-//                //.requestMatchers(HttpMethod.PATCH, whiteListPatch);
-//    }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring().requestMatchers(whiteList);
+                //.requestMatchers(HttpMethod.GET, whiteListGET);
+                //.requestMatchers(HttpMethod.PATCH, whiteListPatch);
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
